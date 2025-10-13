@@ -2,7 +2,6 @@ package itsme.ronjie.portfolio.data
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Work
-import androidx.compose.ui.graphics.Color
 import compose.icons.FontAwesomeIcons
 import compose.icons.SimpleIcons
 import compose.icons.fontawesomeicons.Brands
@@ -20,6 +19,12 @@ import itsme.ronjie.portfolio.domain.model.ProficiencyLevel
 import itsme.ronjie.portfolio.domain.model.Project
 import itsme.ronjie.portfolio.domain.model.Skill
 import itsme.ronjie.portfolio.domain.model.SkillCategory
+import itsme.ronjie.portfolio.presentation.theme.androidGreen
+import itsme.ronjie.portfolio.presentation.theme.gitHubPurple
+import itsme.ronjie.portfolio.presentation.theme.iOSBlue
+import itsme.ronjie.portfolio.presentation.theme.kmpPurple
+import itsme.ronjie.portfolio.presentation.theme.linkedInBlue
+import itsme.ronjie.portfolio.presentation.theme.toolsOrange
 
 object PortfolioData {
 
@@ -28,30 +33,30 @@ object PortfolioData {
             id = "ios",
             name = "iOS",
             icon = SimpleIcons.Apple,
-            color = Color(0xFF007AFF)
+            color = iOSBlue
         ),
         Platform(
             id = "android",
             name = "Android",
             icon = SimpleIcons.Android,
-            color = Color(0xFF3DDC84)
+            color = androidGreen
         ),
         Platform(
             id = "kmp",
             name = "KMP",
             icon = SimpleIcons.Kotlin,
-            color = Color(0xFF7F52FF)
+            color = kmpPurple
         )
     )
 
     val projects = listOf(
         Project(
-            id = "project1",
-            title = "Android Weather App",
+            id = "gweather",
+            title = "GWeather",
             description = "Beautiful weather app with real-time forecasts, built with Jetpack Compose and OpenWeather API",
             platform = platforms[1],
             technologies = listOf("Kotlin", "Jetpack Compose", "OpenWeather", "Core Location"),
-            color = Color(0xFF007AFF),
+            color = platforms[1].color,
             githubUrl = "https://github.com/android-dev-studio/GWeather"
         )
     )
@@ -60,7 +65,7 @@ object PortfolioData {
         SkillCategory(
             id = "ios",
             title = "iOS Development",
-            color = Color(0xFF007AFF),
+            color = iOSBlue,
             skills = listOf(
                 Skill(
                     id = "swift",
@@ -97,7 +102,7 @@ object PortfolioData {
         SkillCategory(
             id = "android",
             title = "Android Development",
-            color = Color(0xFF3DDC84),
+            color = androidGreen,
             skills = listOf(
                 Skill(
                     id = "kotlin",
@@ -134,7 +139,7 @@ object PortfolioData {
         SkillCategory(
             id = "kmp",
             title = "Kotlin Multiplatform",
-            color = Color(0xFF7F52FF),
+            color = kmpPurple,
             skills = listOf(
                 Skill(
                     id = "kmp",
@@ -161,7 +166,7 @@ object PortfolioData {
         SkillCategory(
             id = "tools",
             title = "Tools & Others",
-            color = Color(0xFFFF9500),
+            color = toolsOrange,
             skills = listOf(
                 Skill(
                     id = "git",
@@ -204,7 +209,7 @@ object PortfolioData {
             title = "Email",
             value = "manon.ronjiediafante@gmail.com",
             icon = SimpleIcons.Gmail,
-            color = Color(0xFF007AFF),
+            color = iOSBlue,
             url = "mailto:manon.ronjiediafante@gmail.com"
         ),
         Contact(
@@ -213,7 +218,7 @@ object PortfolioData {
             title = "GitHub",
             value = "github.com/itsmeronjie",
             icon = FontAwesomeIcons.Brands.Github,
-            color = Color(0xFF6e5494),
+            color = gitHubPurple,
             url = "https://github.com/itsmeronjie"
         ),
         Contact(
@@ -222,7 +227,7 @@ object PortfolioData {
             title = "LinkedIn",
             value = "linkedin.com/in/ronjiemanon",
             icon = FontAwesomeIcons.Brands.Linkedin,
-            color = Color(0xFF0077B5),
+            color = linkedInBlue,
             url = "https://www.linkedin.com/in/ronjiemanon/"
         )
     )
