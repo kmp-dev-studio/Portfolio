@@ -12,7 +12,10 @@ import itsme.ronjie.portfolio.presentation.theme.textPrimary
 import itsme.ronjie.portfolio.presentation.theme.textSecondary
 
 @Composable
-fun ExperienceItem(role: String, tech: String) {
+fun ExperienceItem(
+    role: String,
+    tech: String
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween

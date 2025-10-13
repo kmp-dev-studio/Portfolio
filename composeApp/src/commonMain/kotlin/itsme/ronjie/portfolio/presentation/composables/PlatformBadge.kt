@@ -18,7 +18,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun PlatformBadge(text: String, color: Color, icon: ImageVector) {
+fun PlatformBadge(
+    text: String,
+    color: Color,
+    icon: ImageVector
+) {
     Row(
         modifier = Modifier
             .background(

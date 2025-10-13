@@ -24,7 +24,11 @@ import androidx.compose.ui.unit.sp
 import itsme.ronjie.portfolio.presentation.theme.cardBackground
 
 @Composable
-fun SkillCategory(title: String, color: Color, skills: List<String>) {
+fun SkillCategory(
+    title: String,
+    color: Color,
+    skills: List<String>
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
