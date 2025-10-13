@@ -1,0 +1,273 @@
+# Kotlin Multiplatform Project .gitignore
+
+#########################
+# Gradle
+#########################
+.gradle/
+.kotlin/
+**/build/
+!src/**/build/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+.gradletasknamecache
+
+#########################
+# IntelliJ IDEA / Android Studio
+#########################
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea_modules/
+out/
+
+# Keep some .idea files for team consistency (optional)
+!.idea/codeStyles/
+!.idea/runConfigurations/
+
+#########################
+# Android
+#########################
+# APK/AAB files
+*.apk
+*.ap_
+*.aab
+
+# Compiled files
+*.dex
+*.class
+
+# Local configuration
+local.properties
+
+# Android Studio captures folder
+captures/
+.externalNativeBuild
+.cxx
+
+# Keystore files (NEVER commit these!)
+*.jks
+*.keystore
+keystore.properties
+
+# Google Services
+google-services.json
+
+# Lint
+lint-report.html
+lint-report_files/
+lint-results.xml
+
+# Android Profiling
+*.hprof
+
+# NDK
+obj/
+
+#########################
+# iOS / Xcode
+#########################
+# Xcode user data
+xcuserdata/
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+
+*.xcworkspace/*
+!*.xcworkspace/contents.xcworkspacedata
+**/xcshareddata/WorkspaceSettings.xcsettings
+
+# Build products
+DerivedData/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/Build/
+
+# Swift Package Manager
+.swiftpm/
+.build/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# Xcode Patch
+*.xcworkspacedata
+*.xcscmblueprint
+*.xccheckout
+
+#########################
+# Desktop (JVM)
+#########################
+# Package Files
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# JVM crash logs
+hs_err_pid*
+replay_pid*
+
+#########################
+# Web (JS/WASM)
+#########################
+# Node modules (if using npm/yarn)
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Kotlin/JS & Kotlin/Wasm build outputs
+composeApp/build/js/
+composeApp/build/wasm/
+composeApp/build/distributions/
+composeApp/build/compileSync/
+
+# Generated JS/WASM files
+*.js.map
+*.wasm
+
+# Web resources
+composeApp/src/jsMain/resources/public/
+composeApp/src/wasmJsMain/resources/public/
+
+# Webpack
+webpack.config.js
+.cache/
+
+#########################
+# Kotlin/Native
+#########################
+*.klib
+*.o
+*.a
+*.so
+*.dylib
+*.def
+
+#########################
+# Compose Multiplatform
+#########################
+# Compose resources cache
+.compose-resources/
+
+# Compose compiler
+**/compose_compiler_dump/
+
+#########################
+# macOS
+#########################
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+#########################
+# Windows
+#########################
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+#########################
+# Linux
+#########################
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+#########################
+# Logs
+#########################
+*.log
+logs/
+*.log.*
+
+#########################
+# Environment & Secrets
+#########################
+.env
+.env.local
+.env.*.local
+*.secret
+secrets.properties
+
+#########################
+# Testing
+#########################
+test-results/
+coverage/
+.test/
+
+#########################
+# Temporary & Cache
+#########################
+*.tmp
+*.temp
+*.swp
+*.swo
+*~.nib
+tmp/
+temp/
+
+#########################
+# Database
+#########################
+*.db
+*.sqlite
+*.sqlite3
+
+#########################
+# IDE - VS Code
+#########################
+.vscode/
+*.code-workspace
+
+#########################
+# Backup files
+#########################
+*.bak
+*.backup
