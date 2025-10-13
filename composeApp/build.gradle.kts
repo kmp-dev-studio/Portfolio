@@ -58,6 +58,8 @@ kotlin {
             implementation(libs.compose.icons.feather)
             implementation(libs.compose.icons.fontawesome)
             implementation(libs.compose.icons.simpleicons)
+            implementation(libs.haze)
+            implementation(libs.haze.materials)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
