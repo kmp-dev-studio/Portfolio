@@ -34,8 +34,17 @@ jobs:
       - name: List build output
         run: |
           echo "Checking build output directories..."
-          find composeApp/build -type d -name "distributions" || echo "distributions not found"
-          find composeApp/build -type f -name "*.js" | head -20
+          echo "=== Directory structure ==="
+          ls -la composeApp/build/ || echo "build directory not found"
+          echo ""
+          echo "=== Looking for JS files ==="
+          find composeApp/build -type f -name "*.js" 2>/dev/null | head -20 || echo "No JS files found"
+          echo ""
+          echo "=== Looking for webpack output ==="
+          find composeApp/build -type d -name "*webpack*" 2>/dev/null || echo "No webpack directories"
+          echo ""
+          echo "=== Full tree (limited depth) ==="
+          find composeApp/build -maxdepth 4 -type d 2>/dev/null || echo "Cannot list directories"
 
       - name: Install Vercel CLI
         run: npm install -g vercel
@@ -46,12 +55,33 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
+          # Try different possible output directories
+          BUILD_DIR=""
+
           if [ -d "composeApp/build/dist/js/productionExecutable" ]; then
-            cd composeApp/build/dist/js/productionExecutable
+            BUILD_DIR="composeApp/build/dist/js/productionExecutable"
           elif [ -d "composeApp/build/distributions" ]; then
-            cd composeApp/build/distributions
+            BUILD_DIR="composeApp/build/distributions"
+          elif [ -d "composeApp/build/compileSync/js/main/productionExecutable/kotlin" ]; then
+            BUILD_DIR="composeApp/build/compileSync/js/main/productionExecutable/kotlin"
+          elif [ -d "composeApp/build/js/packages/composeApp" ]; then
+            BUILD_DIR="composeApp/build/js/packages/composeApp"
           else
+            # Find any directory containing index.html
+            BUILD_DIR=$(find composeApp/build -name "index.html" -type f | head -1 | xargs dirname)
+          fi
+
+          if [ -z "$BUILD_DIR" ] || [ ! -d "$BUILD_DIR" ]; then
             echo "Error: Could not find build output directory"
+            echo "Searched locations:"
+            echo "  - composeApp/build/dist/js/productionExecutable"
+            echo "  - composeApp/build/distributions"
+            echo "  - composeApp/build/compileSync/js/main/productionExecutable/kotlin"
+            echo "  - composeApp/build/js/packages/composeApp"
             exit 1
           fi
+
+          echo "Found build directory: $BUILD_DIR"
+          cd "$BUILD_DIR"
+          ls -la
           vercel deploy --prod --token=$VERCEL_TOKEN
