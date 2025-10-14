@@ -34,17 +34,24 @@ jobs:
       - name: List build output
         run: |
           echo "Checking build output directories..."
-          ls -la composeApp/build/
-          ls -la composeApp/build/distributions/ || echo "distributions not found"
-      
+          find composeApp/build -type d -name "distributions" || echo "distributions not found"
+          find composeApp/build -type f -name "*.js" | head -20
+
       - name: Install Vercel CLI
         run: npm install -g vercel
-      
+
       - name: Deploy to Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
-          cd composeApp/build/distributions
+          if [ -d "composeApp/build/dist/js/productionExecutable" ]; then
+            cd composeApp/build/dist/js/productionExecutable
+          elif [ -d "composeApp/build/distributions" ]; then
+            cd composeApp/build/distributions
+          else
+            echo "Error: Could not find build output directory"
+            exit 1
+          fi
           vercel deploy --prod --token=$VERCEL_TOKEN
