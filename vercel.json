@@ -1,7 +1,5 @@
 {
-  "buildCommand": "./gradlew composeApp:jsBrowserProductionWebpack",
-  "outputDirectory": "composeApp/build/dist/js/productionExecutable",
-  "installCommand": "echo 'Skipping install'",
-  "framework": null,
-  "devCommand": null
+  "buildCommand": null,
+  "installCommand": null,
+  "framework": null
 }
