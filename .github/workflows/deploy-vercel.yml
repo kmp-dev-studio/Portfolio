@@ -88,6 +88,16 @@ jobs:
           echo "Deployment directory contents:"
           ls -la deploy/
 
+          # Verify index.html exists
+          if [ ! -f "deploy/index.html" ]; then
+            echo "ERROR: index.html not found in deploy directory!"
+            echo "Files in deploy directory:"
+            find deploy -type f
+            exit 1
+          fi
+
+          echo "✓ index.html found in deployment directory"
+
       - name: Deploy to Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
