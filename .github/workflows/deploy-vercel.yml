@@ -34,14 +34,17 @@ jobs:
       - name: List build output
         run: |
           echo "Checking build output directories..."
-          find composeApp/build -type d -name "productionExecutable" || true
-          find composeApp/build -type f -name "*.js" | head -20 || true
+          ls -la composeApp/build/
+          ls -la composeApp/build/distributions/ || echo "distributions not found"
+      
+      - name: Install Vercel CLI
+        run: npm install -g vercel
       
       - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: composeApp/build/distributions
-          vercel-args: '--prod'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          cd composeApp/build/distributions
+          vercel deploy --prod --token=$VERCEL_TOKEN
