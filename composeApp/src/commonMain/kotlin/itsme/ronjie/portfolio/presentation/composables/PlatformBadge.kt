@@ -21,10 +21,11 @@ import androidx.compose.ui.unit.dp
 fun PlatformBadge(
     text: String,
     color: Color,
-    icon: ImageVector
+    icon: ImageVector,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .background(
                 color = color.copy(0.2f),
                 shape = RoundedCornerShape(20.dp)

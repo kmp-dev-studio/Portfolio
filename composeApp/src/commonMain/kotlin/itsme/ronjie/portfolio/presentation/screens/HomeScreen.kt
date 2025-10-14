@@ -1,11 +1,19 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package itsme.ronjie.portfolio.presentation.screens
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,7 +44,9 @@ import itsme.ronjie.portfolio.presentation.composables.PlatformBadge
 import itsme.ronjie.portfolio.presentation.theme.extended
 
 @Composable
-fun HomeScreen() {
+fun SharedTransitionScope.HomeScreen(
+    animatedVisibilityScope: AnimatedVisibilityScope
+) {
     val extendedColors = MaterialTheme.colorScheme.extended
     val platforms = PortfolioData.platforms
     val experiences = PortfolioData.experiences
@@ -71,18 +81,52 @@ fun HomeScreen() {
 
         Spacer(Modifier.height(16.dp))
 
-        Text(
-            text = profile.NAME,
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = extendedColors.textPrimary
-        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            profile.NAME.split(" ").forEachIndexed { index, word ->
+                Text(
+                    text = word,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = extendedColors.textPrimary,
+                    maxLines = 1,
+                    modifier = Modifier
+                        .sharedElement(
+                            rememberSharedContentState(key = "name_$index"),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            boundsTransform = { _, _ ->
+                                tween(durationMillis = 500, easing = FastOutSlowInEasing)
+                            }
+                        )
+                        .skipToLookaheadSize()
+                )
+            }
+        }
 
-        Text(
-            text = profile.TITLE,
-            fontSize = 16.sp,
-            color = extendedColors.textSecondary
-        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            profile.TITLE.split(" ").forEachIndexed { index, word ->
+                Text(
+                    text = word,
+                    fontSize = 16.sp,
+                    color = extendedColors.textSecondary,
+                    maxLines = 1,
+                    modifier = Modifier
+                        .sharedElement(
+                            rememberSharedContentState(key = "title_${profile.NAME.split(" ").size + index}"),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            boundsTransform = { _, _ ->
+                                tween(durationMillis = 500, easing = FastOutSlowInEasing)
+                            }
+                        )
+                        .skipToLookaheadSize()
+                )
+            }
+        }
 
         Spacer(Modifier.height(24.dp))
 
@@ -95,7 +139,16 @@ fun HomeScreen() {
                 PlatformBadge(
                     text = platform.name,
                     color = platform.color,
-                    icon = platform.icon
+                    icon = platform.icon,
+                    modifier = Modifier
+                        .sharedElement(
+                            rememberSharedContentState(key = "platform_badge_${platform.id}"),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            boundsTransform = { _, _ ->
+                                tween(durationMillis = 500, easing = FastOutSlowInEasing)
+                            }
+                        )
+                        .skipToLookaheadSize()
                 )
             }
         }
@@ -106,11 +159,41 @@ fun HomeScreen() {
             title = "About Me",
             icon = Icons.Filled.Person
         ) {
-            Text(
-                text = profile.BIO,
-                color = extendedColors.textSecondary,
-                lineHeight = 22.sp
-            )
+            val bioWords = profile.BIO.split(" ")
+            val bioChunks = bioWords.chunked(3)
+            val nameWordCount = profile.NAME.split(" ").size
+            val titleWordCount = profile.TITLE.split(" ").size
+
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                bioChunks.take(5).forEachIndexed { index, chunk ->
+                    Text(
+                        text = chunk.joinToString(" ") + " ",
+                        color = extendedColors.textSecondary,
+                        lineHeight = 22.sp,
+                        maxLines = 1,
+                        modifier = Modifier
+                            .sharedElement(
+                                rememberSharedContentState(key = "bio_${nameWordCount + titleWordCount + index}"),
+                                animatedVisibilityScope = animatedVisibilityScope,
+                                boundsTransform = { _, _ ->
+                                    tween(durationMillis = 500, easing = FastOutSlowInEasing)
+                                }
+                            )
+                            .skipToLookaheadSize()
+                    )
+                }
+
+                if (bioChunks.size > 5) {
+                    Text(
+                        text = bioChunks.drop(5).flatten().joinToString(" "),
+                        color = extendedColors.textSecondary,
+                        lineHeight = 22.sp
+                    )
+                }
+            }
         }
 
         Spacer(Modifier.height(16.dp))
