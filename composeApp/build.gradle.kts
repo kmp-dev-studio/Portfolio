@@ -60,6 +60,10 @@ kotlin {
             implementation(libs.compose.icons.simpleicons)
             implementation(libs.haze)
             implementation(libs.haze.materials)
+            implementation("org.jetbrains.compose.material3:material3:1.9.0-alpha04")
+            implementation(libs.material3.adaptive)
+            implementation(libs.material3.adaptive.layout)
+            implementation(libs.material3.adaptive.navigation)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
