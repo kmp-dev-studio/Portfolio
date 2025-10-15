@@ -1,7 +1,14 @@
 {
-  "buildCommand": null,
-  "installCommand": null,
+  "buildCommand": "./vercel-build.sh",
+  "installCommand": "echo 'No install needed - built by GitHub Actions'",
   "framework": null,
+  "git": {
+    "deploymentEnabled": false
+  },
+  "github": {
+    "enabled": false,
+    "autoAlias": false
+  },
   "rewrites": [
     {
       "source": "/(.*)",
