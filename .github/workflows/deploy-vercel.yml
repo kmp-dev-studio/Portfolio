@@ -168,73 +168,11 @@ jobs:
             echo "⚠ WARNING: kotlin-stdlib not found!"
           fi
 
-      - name: Deploy to Vercel (Preview)
-        id: deploy_preview
+      - name: Deploy to Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           cd deploy
-
-          echo "Creating preview deployment on Vercel..."
-
-          # Deploy to preview first (not production)
-          DEPLOYMENT_OUTPUT=$(vercel deploy --yes --token=$VERCEL_TOKEN 2>&1 | tee deploy_output.txt)
-
-          # Extract deployment URL
-          DEPLOYMENT_URL=$(echo "$DEPLOYMENT_OUTPUT" | grep -Eo 'https://[a-zA-Z0-9./?=_%:-]*' | grep -v 'vercel.com/[^/]*$' | tail -1)
-
-          if [ -z "$DEPLOYMENT_URL" ]; then
-            echo "ERROR: Failed to get deployment URL"
-            cat deploy_output.txt
-            exit 1
-          fi
-
-          echo "Preview deployment URL: $DEPLOYMENT_URL"
-          echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
-
-          # Wait for deployment to be ready (max 10 minutes)
-          echo "Waiting for deployment to be ready..."
-          MAX_ATTEMPTS=120
-          ATTEMPT=0
-
-          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
-            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$DEPLOYMENT_URL")
-
-            if [ "$HTTP_CODE" = "200" ]; then
-              echo "✓ Preview deployment is live and responding with HTTP 200"
-
-              # Verify the content is actually loaded (not just returning 200 for a blank page)
-              CONTENT=$(curl -s "$DEPLOYMENT_URL" | grep -c "<!DOCTYPE html>" || true)
-              if [ "$CONTENT" -gt 0 ]; then
-                echo "✓ Content verification passed"
-                exit 0
-              else
-                echo "Waiting for content to be fully available..."
-              fi
-            else
-              echo "Attempt $((ATTEMPT + 1))/$MAX_ATTEMPTS: HTTP $HTTP_CODE - waiting..."
-            fi
-
-            sleep 5
-            ATTEMPT=$((ATTEMPT + 1))
-          done
-
-          echo "ERROR: Deployment did not become ready within the timeout period"
-          exit 1
-
-      - name: Promote to Production
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: |
-          cd deploy
-
-          DEPLOYMENT_URL="${{ steps.deploy_preview.outputs.deployment_url }}"
-
-          echo "Promoting deployment to production: $DEPLOYMENT_URL"
-
-          # Promote the verified preview deployment to production
-          vercel promote "$DEPLOYMENT_URL" --token=$VERCEL_TOKEN --yes
-
-          echo "✓ Successfully promoted to production"
+          vercel deploy --prod --yes --token=$VERCEL_TOKEN
