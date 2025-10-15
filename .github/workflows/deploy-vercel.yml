@@ -125,6 +125,17 @@ jobs:
                 echo "✓ Copied $(basename $icon)"
               fi
             done
+
+            # Copy SEO files (sitemap, robots.txt)
+            if [ -f "composeApp/src/webMain/resources/sitemap.xml" ]; then
+              cp composeApp/src/webMain/resources/sitemap.xml deploy/
+              echo "✓ Copied sitemap.xml"
+            fi
+
+            if [ -f "composeApp/src/webMain/resources/robots.txt" ]; then
+              cp composeApp/src/webMain/resources/robots.txt deploy/
+              echo "✓ Copied robots.txt"
+            fi
           else
             echo "ERROR: index.html not found in resources"
             exit 1
