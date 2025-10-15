@@ -160,37 +160,34 @@ fun SharedTransitionScope.HomeScreen(
             icon = Icons.Filled.Person
         ) {
             val bioWords = profile.BIO.split(" ")
-            val bioChunks = bioWords.chunked(3)
-            val nameWordCount = profile.NAME.split(" ").size
-            val titleWordCount = profile.TITLE.split(" ").size
+
+            // Chunk bio words randomly by 1-3 words to match splash screen
+            val bioChunks = mutableListOf<List<String>>()
+            var currentIndex = 0
+            while (currentIndex < bioWords.size) {
+                val chunkSize =
+                    kotlin.random.Random.nextInt(1, 4).coerceAtMost(bioWords.size - currentIndex)
+                bioChunks.add(bioWords.subList(currentIndex, currentIndex + chunkSize))
+                currentIndex += chunkSize
+            }
 
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                bioChunks.take(5).forEachIndexed { index, chunk ->
+                bioChunks.forEachIndexed { index, chunk ->
                     Text(
-                        text = chunk.joinToString(" ") + " ",
-                        color = extendedColors.textSecondary,
+                        text = chunk.joinToString(" ") + "",
                         lineHeight = 22.sp,
-                        maxLines = 1,
                         modifier = Modifier
                             .sharedElement(
-                                rememberSharedContentState(key = "bio_${nameWordCount + titleWordCount + index}"),
+                                rememberSharedContentState(key = "bio_$index"),
                                 animatedVisibilityScope = animatedVisibilityScope,
                                 boundsTransform = { _, _ ->
                                     tween(durationMillis = 500, easing = FastOutSlowInEasing)
                                 }
                             )
                             .skipToLookaheadSize()
-                    )
-                }
-
-                if (bioChunks.size > 5) {
-                    Text(
-                        text = bioChunks.drop(5).flatten().joinToString(" "),
-                        color = extendedColors.textSecondary,
-                        lineHeight = 22.sp
                     )
                 }
             }

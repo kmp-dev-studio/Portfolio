@@ -14,9 +14,12 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -30,12 +33,15 @@ import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -46,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowWidthSizeClass
 import dev.chrisbanes.haze.HazeState
@@ -53,17 +60,22 @@ import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
+import itsme.ronjie.portfolio.presentation.composables.ThemeToggleButton
 import itsme.ronjie.portfolio.presentation.screens.ContactScreen
 import itsme.ronjie.portfolio.presentation.screens.HomeScreen
 import itsme.ronjie.portfolio.presentation.screens.ProjectsScreen
 import itsme.ronjie.portfolio.presentation.screens.SkillsScreen
 import itsme.ronjie.portfolio.presentation.screens.SplashScreen
-import itsme.ronjie.portfolio.presentation.theme.ExtendedColors
 import itsme.ronjie.portfolio.presentation.theme.LocalExtendedColors
+import itsme.ronjie.portfolio.presentation.theme.LocalThemeManager
+import itsme.ronjie.portfolio.presentation.theme.ThemeMode
 import itsme.ronjie.portfolio.presentation.theme.androidGreen
 import itsme.ronjie.portfolio.presentation.theme.cardBackground
 import itsme.ronjie.portfolio.presentation.theme.darkBackground
+import itsme.ronjie.portfolio.presentation.theme.darkExtendedColors
 import itsme.ronjie.portfolio.presentation.theme.iOSBlue
+import itsme.ronjie.portfolio.presentation.theme.lightExtendedColors
+import itsme.ronjie.portfolio.presentation.theme.rememberThemeManager
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private data class NavigationItem(
@@ -80,7 +92,10 @@ private data class NavigationItem(
 @Composable
 @Preview
 fun App() {
-    val extendedColors = ExtendedColors()
+    val themeManager = rememberThemeManager(ThemeMode.DARK)
+    val isDarkMode = themeManager.currentTheme.value == ThemeMode.DARK
+
+    val extendedColors = if (isDarkMode) darkExtendedColors() else lightExtendedColors()
 
     val gradientBackground = Brush.verticalGradient(
         colors = listOf(
@@ -90,15 +105,29 @@ fun App() {
         )
     )
 
-    MaterialExpressiveTheme(
-        colorScheme = darkColorScheme(
+    val colorScheme = if (isDarkMode) {
+        darkColorScheme(
             primary = iOSBlue,
             secondary = androidGreen,
             background = darkBackground,
             surface = cardBackground
         )
+    } else {
+        lightColorScheme(
+            primary = iOSBlue,
+            secondary = androidGreen,
+            background = Color(0xFFF5F5F5),
+            surface = Color.White
+        )
+    }
+
+    MaterialExpressiveTheme(
+        colorScheme = colorScheme
     ) {
-        CompositionLocalProvider(LocalExtendedColors provides extendedColors) {
+        CompositionLocalProvider(
+            LocalExtendedColors provides extendedColors,
+            LocalThemeManager provides themeManager
+        ) {
             var showSplash by remember { mutableStateOf(true) }
             var selectedTab by remember { mutableStateOf(0) }
             val hazeState = remember { HazeState() }
@@ -135,8 +164,7 @@ fun App() {
                                 selectedTab = selectedTab,
                                 onTabSelected = { selectedTab = it },
                                 items = items,
-                                hazeState = hazeState,
-                                gradientBackground = gradientBackground
+                                hazeState = hazeState
                             )
                         }
                     }
@@ -153,8 +181,7 @@ private fun SharedTransitionScope.MainContent(
     selectedTab: Int,
     onTabSelected: (Int) -> Unit,
     items: List<NavigationItem>,
-    hazeState: HazeState,
-    gradientBackground: Brush
+    hazeState: HazeState
 ) {
     val adaptiveInfo = currentWindowAdaptiveInfo()
     val windowSizeClass = adaptiveInfo.windowSizeClass
@@ -199,14 +226,38 @@ private fun SharedTransitionScope.AdaptiveNavigationBar(
         containerColor = Color.Transparent,
         bottomBar = {
             NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+                containerColor = Color.Transparent,
+                modifier = Modifier
+                    .hazeEffect(
+                        state = hazeState,
+                        style = HazeMaterials.thick(
+                            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+                        )
+                    )
             ) {
                 items.forEach { item ->
                     NavigationBarItem(
                         selected = selectedTab == item.index,
                         onClick = { onTabSelected(item.index) },
-                        icon = { Icon(item.icon, contentDescription = item.title) },
-                        label = { Text(item.title) }
+                        icon = {
+                            Icon(
+                                imageVector = item.icon,
+                                contentDescription = item.title
+                            )
+                        },
+                        label = {
+                            Text(
+                                text = item.title,
+                                fontWeight = if (selectedTab == item.index) FontWeight.Bold else FontWeight.Normal
+                            )
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = MaterialTheme.colorScheme.onBackground,
+                            selectedTextColor = MaterialTheme.colorScheme.onBackground,
+                            unselectedIconColor = MaterialTheme.colorScheme.onBackground.copy(0.65f),
+                            unselectedTextColor = MaterialTheme.colorScheme.onBackground.copy(0.65f),
+                            indicatorColor = MaterialTheme.colorScheme.surface.copy(0.75f)
+                        )
                     )
                 }
             }
@@ -224,25 +275,36 @@ private fun SharedTransitionScope.AdaptiveNavigationBar(
                     )
                 )
         ) {
-            AnimatedContent(
-                targetState = selectedTab,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                transitionSpec = {
-                    slideInHorizontally(
-                        initialOffsetX = { if (targetState > initialState) it else -it }
-                    ) + fadeIn() togetherWith
-                            slideOutHorizontally(
-                                targetOffsetX = { if (targetState > initialState) -it else it }
-                            ) + fadeOut()
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    ThemeToggleButton()
                 }
-            ) { tab ->
-                when (tab) {
-                    0 -> HomeScreen(animatedVisibilityScope)
-                    1 -> SkillsScreen()
-                    2 -> ProjectsScreen()
-                    3 -> ContactScreen()
+
+                AnimatedContent(
+                    targetState = selectedTab,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    transitionSpec = {
+                        slideInHorizontally(
+                            initialOffsetX = { if (targetState > initialState) it else -it }
+                        ) + fadeIn() togetherWith
+                                slideOutHorizontally(
+                                    targetOffsetX = { if (targetState > initialState) -it else it }
+                                ) + fadeOut()
+                    }
+                ) { tab ->
+                    when (tab) {
+                        0 -> HomeScreen(animatedVisibilityScope)
+                        1 -> SkillsScreen()
+                        2 -> ProjectsScreen()
+                        3 -> ContactScreen()
+                    }
                 }
             }
         }
@@ -259,14 +321,41 @@ private fun SharedTransitionScope.AdaptiveNavigationRail(
 ) {
     Row(modifier = Modifier.fillMaxSize()) {
         NavigationRail(
-            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+            containerColor = Color.Transparent,
+            modifier = Modifier
+                .hazeEffect(
+                    state = hazeState,
+                    style = HazeMaterials.thick(
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+                    )
+                ),
+            header = {
+                ThemeToggleButton()
+            }
         ) {
             items.forEach { item ->
                 NavigationRailItem(
                     selected = selectedTab == item.index,
                     onClick = { onTabSelected(item.index) },
-                    icon = { Icon(item.icon, contentDescription = item.title) },
-                    label = { Text(item.title) }
+                    icon = {
+                        Icon(
+                            imageVector = item.icon,
+                            contentDescription = item.title
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = item.title,
+                            fontWeight = if (selectedTab == item.index) FontWeight.Bold else FontWeight.Normal
+                        )
+                    },
+                    colors = NavigationRailItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.onBackground,
+                        selectedTextColor = MaterialTheme.colorScheme.onBackground,
+                        unselectedIconColor = MaterialTheme.colorScheme.onBackground.copy(0.65f),
+                        unselectedTextColor = MaterialTheme.colorScheme.onBackground.copy(0.65f),
+                        indicatorColor = MaterialTheme.colorScheme.surface.copy(0.5f)
+                    )
                 )
             }
         }

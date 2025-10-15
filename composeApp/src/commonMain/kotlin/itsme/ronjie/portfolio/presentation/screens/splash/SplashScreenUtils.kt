@@ -27,7 +27,7 @@ internal fun generateTextFragments(): List<TextFragment> {
     val bio = profile.BIO
 
     val titleWords = title.split(" ")
-    val bioWords = bio.split(" ").chunked(3)
+    val bioWords = bio.split(" ")
 
     val fragments = mutableListOf<TextFragment>()
     var id = 0
@@ -48,7 +48,16 @@ internal fun generateTextFragments(): List<TextFragment> {
         )
     }
 
-    bioWords.take(5).forEach { chunk ->
+    // Chunk bio words randomly by 1-3 words
+    val bioChunks = mutableListOf<List<String>>()
+    var currentIndex = 0
+    while (currentIndex < bioWords.size) {
+        val chunkSize = Random.nextInt(1, 4).coerceAtMost(bioWords.size - currentIndex)
+        bioChunks.add(bioWords.subList(currentIndex, currentIndex + chunkSize))
+        currentIndex += chunkSize
+    }
+
+    bioChunks.forEach { chunk ->
         val (x, y) = generateRandomPosition()
         fragments.add(
             TextFragment(

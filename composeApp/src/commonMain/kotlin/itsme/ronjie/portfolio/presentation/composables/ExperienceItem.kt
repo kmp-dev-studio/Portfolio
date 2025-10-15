@@ -8,8 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import itsme.ronjie.portfolio.presentation.theme.textPrimary
-import itsme.ronjie.portfolio.presentation.theme.textSecondary
 
 @Composable
 fun ExperienceItem(
@@ -22,12 +20,10 @@ fun ExperienceItem(
     ) {
         Text(
             text = role,
-            color = textPrimary,
             fontWeight = FontWeight.Medium
         )
         Text(
             text = tech,
-            color = textSecondary,
             fontSize = 14.sp
         )
     }

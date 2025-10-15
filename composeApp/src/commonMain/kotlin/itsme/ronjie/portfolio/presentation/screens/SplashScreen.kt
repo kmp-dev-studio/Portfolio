@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalSharedTransitionApi::class)
+@file:OptIn(ExperimentalSharedTransitionApi::class, ExperimentalHazeMaterialsApi::class)
 
 package itsme.ronjie.portfolio.presentation.screens
 
@@ -30,6 +30,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.hazeChild
+import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import dev.chrisbanes.haze.materials.HazeMaterials
 import itsme.ronjie.portfolio.data.PortfolioData
 import itsme.ronjie.portfolio.presentation.composables.PlatformBadge
 import itsme.ronjie.portfolio.presentation.screens.splash.DecorativeElementRenderer
@@ -56,6 +61,7 @@ fun SharedTransitionScope.SplashScreen(
     var showCursor by remember { mutableStateOf(true) }
 
     val alphaAnimation = remember { Animatable(0.25f) }
+    val hazeState = remember { HazeState() }
 
     LaunchedEffect(Unit) {
         val typingDuration = fullName.length * 100L
@@ -146,6 +152,7 @@ fun SharedTransitionScope.SplashScreen(
                         x = maxWidth * fragment.x,
                         y = maxHeight * fragment.y
                     )
+                    .hazeSource(state = hazeState)
                     .alpha(alphaAnimation.value)
                     .sharedElement(
                         rememberSharedContentState(key = fragment.id),
@@ -169,6 +176,7 @@ fun SharedTransitionScope.SplashScreen(
                         x = maxWidth * x,
                         y = maxHeight * y
                     )
+                    .hazeSource(state = hazeState)
                     .alpha(alphaAnimation.value)
                     .sharedElement(
                         rememberSharedContentState(key = "platform_badge_$platformId"),
@@ -185,10 +193,12 @@ fun SharedTransitionScope.SplashScreen(
 
         decorativeElements.forEachIndexed { index, element ->
             Box(
-                modifier = Modifier.offset(
-                    x = maxWidth * element.x,
-                    y = maxHeight * element.y
-                )
+                modifier = Modifier
+                    .offset(
+                        x = maxWidth * element.x,
+                        y = maxHeight * element.y
+                    )
+                    .hazeSource(state = hazeState)
             ) {
                 DecorativeElementRenderer(
                     element = element,
