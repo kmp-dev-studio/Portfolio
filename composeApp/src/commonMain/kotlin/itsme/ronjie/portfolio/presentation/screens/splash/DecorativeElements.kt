@@ -1,5 +1,6 @@
 package itsme.ronjie.portfolio.presentation.screens.splash
 
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -31,7 +32,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.animation.core.FastOutSlowInEasing
 import itsme.ronjie.portfolio.presentation.theme.extended
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)

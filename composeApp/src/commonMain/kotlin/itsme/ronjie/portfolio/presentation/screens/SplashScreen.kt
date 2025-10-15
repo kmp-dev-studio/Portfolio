@@ -12,6 +12,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -32,9 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
-import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
-import dev.chrisbanes.haze.materials.HazeMaterials
 import itsme.ronjie.portfolio.data.PortfolioData
 import itsme.ronjie.portfolio.presentation.composables.PlatformBadge
 import itsme.ronjie.portfolio.presentation.screens.splash.DecorativeElementRenderer
@@ -111,31 +110,40 @@ fun SharedTransitionScope.SplashScreen(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
-            ) {
-                val nameWords = fullName.split(" ")
-                nameWords.forEachIndexed { index, word ->
-                    val startIndex = nameWords.take(index).sumOf { it.length + 1 }
-                    val visibleChars = (typedText.length - startIndex).coerceIn(0, word.length)
-                    val displayText = word.take(visibleChars)
+            Column {
+                Text(
+                    text = "Hi there!",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    maxLines = 1
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+                ) {
+                    val nameWords = fullName.split(" ")
+                    nameWords.forEachIndexed { index, word ->
+                        val startIndex = nameWords.take(index).sumOf { it.length + 1 }
+                        val visibleChars = (typedText.length - startIndex).coerceIn(0, word.length)
+                        val displayText = word.take(visibleChars)
 
-                    Text(
-                        text = displayText + if (index == nameWords.lastIndex && visibleChars == word.length && showCursor) "|" else "",
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        maxLines = 1,
-                        modifier = Modifier
-                            .sharedElement(
-                                rememberSharedContentState(key = "name_$index"),
-                                animatedVisibilityScope = animatedVisibilityScope,
-                                boundsTransform = { _, _ ->
-                                    tween(durationMillis = 500, easing = FastOutSlowInEasing)
-                                }
-                            )
-                            .skipToLookaheadSize()
-                    )
+                        Text(
+                            text = displayText + if (index == nameWords.lastIndex && visibleChars == word.length && showCursor) "|" else " ",
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            maxLines = 1,
+                            modifier = Modifier
+                                .sharedElement(
+                                    rememberSharedContentState(key = "name_$index"),
+                                    animatedVisibilityScope = animatedVisibilityScope,
+                                    boundsTransform = { _, _ ->
+                                        tween(durationMillis = 500, easing = FastOutSlowInEasing)
+                                    }
+                                )
+                                .skipToLookaheadSize()
+                        )
+                    }
                 }
             }
         }
