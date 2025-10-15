@@ -175,4 +175,37 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           cd deploy
-          vercel deploy --prod --yes --token=$VERCEL_TOKEN
+
+          echo "Deploying to Vercel and waiting for completion..."
+
+          # Deploy and capture the URL
+          DEPLOYMENT_URL=$(vercel deploy --prod --yes --token=$VERCEL_TOKEN 2>&1 | tee /dev/tty | grep -Eo 'https://[a-zA-Z0-9./?=_%:-]*' | tail -1)
+
+          if [ -z "$DEPLOYMENT_URL" ]; then
+            echo "ERROR: Failed to get deployment URL"
+            exit 1
+          fi
+
+          echo "Deployment initiated: $DEPLOYMENT_URL"
+          echo "Waiting for deployment to be ready..."
+
+          # Wait for deployment to be ready (max 5 minutes)
+          MAX_ATTEMPTS=60
+          ATTEMPT=0
+
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$DEPLOYMENT_URL")
+
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✓ Deployment is live and responding with HTTP 200"
+              echo "Deployment URL: $DEPLOYMENT_URL"
+              exit 0
+            else
+              echo "Attempt $((ATTEMPT + 1))/$MAX_ATTEMPTS: HTTP $HTTP_CODE - waiting..."
+              sleep 5
+              ATTEMPT=$((ATTEMPT + 1))
+            fi
+          done
+
+          echo "ERROR: Deployment did not become ready within the timeout period"
+          exit 1
