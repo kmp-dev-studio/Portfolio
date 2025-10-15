@@ -83,6 +83,31 @@ jobs:
           # Create deployment directory and copy built files
           mkdir -p deploy
           cp -r "$BUILD_DIR"/* deploy/
+
+          # Copy index.html from resources and update the script reference
+          if [ -f "composeApp/src/webMain/resources/index.html" ]; then
+            # Find the main JS file (usually Portfolio-composeApp.js or composeApp.js)
+            MAIN_JS=$(find deploy -name "*composeApp.js" -not -name "*.map" | head -1 | xargs basename)
+
+            if [ -z "$MAIN_JS" ]; then
+              echo "ERROR: Could not find main JS file"
+              exit 1
+            fi
+
+            echo "Found main JS file: $MAIN_JS"
+
+            # Copy index.html and update script reference
+            sed "s/composeApp\.js/$MAIN_JS/g" composeApp/src/webMain/resources/index.html > deploy/index.html
+
+            # Copy any CSS files if they exist
+            if [ -f "composeApp/src/webMain/resources/styles.css" ]; then
+              cp composeApp/src/webMain/resources/styles.css deploy/
+            fi
+          else
+            echo "ERROR: index.html not found in resources"
+            exit 1
+          fi
+
           cp vercel.json deploy/
 
           echo "Deployment directory contents:"
@@ -97,6 +122,8 @@ jobs:
           fi
 
           echo "✓ index.html found in deployment directory"
+          echo "Content of index.html:"
+          cat deploy/index.html
 
       - name: Deploy to Vercel
         env:
