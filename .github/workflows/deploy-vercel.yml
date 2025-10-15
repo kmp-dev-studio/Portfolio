@@ -51,38 +51,46 @@ jobs:
 
       - name: Prepare deployment
         run: |
-          # Try different possible output directories
+          # Look for the webpack output directory which contains all bundled JS files
           BUILD_DIR=""
 
+          # Common webpack output locations for Kotlin/JS
           if [ -d "composeApp/build/dist/js/productionExecutable" ]; then
             BUILD_DIR="composeApp/build/dist/js/productionExecutable"
           elif [ -d "composeApp/build/distributions" ]; then
             BUILD_DIR="composeApp/build/distributions"
-          elif [ -d "composeApp/build/compileSync/js/main/productionExecutable/kotlin" ]; then
-            BUILD_DIR="composeApp/build/compileSync/js/main/productionExecutable/kotlin"
-          elif [ -d "composeApp/build/js/packages/composeApp" ]; then
-            BUILD_DIR="composeApp/build/js/packages/composeApp"
           else
-            # Find any directory containing index.html
-            BUILD_DIR=$(find composeApp/build -name "index.html" -type f | head -1 | xargs dirname)
+            # Search for directory containing the main composeApp.js file
+            MAIN_JS_PATH=$(find composeApp/build -name "*composeApp.js" -not -name "*.map" -type f | head -1)
+            if [ -n "$MAIN_JS_PATH" ]; then
+              BUILD_DIR=$(dirname "$MAIN_JS_PATH")
+            fi
           fi
 
           if [ -z "$BUILD_DIR" ] || [ ! -d "$BUILD_DIR" ]; then
-            echo "Error: Could not find build output directory"
+            echo "ERROR: Could not find webpack build output directory"
             echo "Searched locations:"
             echo "  - composeApp/build/dist/js/productionExecutable"
             echo "  - composeApp/build/distributions"
-            echo "  - composeApp/build/compileSync/js/main/productionExecutable/kotlin"
-            echo "  - composeApp/build/js/packages/composeApp"
+            echo ""
+            echo "All JS files in build directory:"
+            find composeApp/build -name "*.js" -type f 2>/dev/null || echo "No JS files found"
             exit 1
           fi
 
           echo "Found build directory: $BUILD_DIR"
+          echo "Contents of build directory:"
           ls -la "$BUILD_DIR"
 
-          # Create deployment directory and copy built files
+          # Create deployment directory
           mkdir -p deploy
+
+          # Copy ALL files from the build directory (all JS files and dependencies)
+          echo "Copying all build output files..."
           cp -r "$BUILD_DIR"/* deploy/
+
+          echo "Files copied to deploy directory:"
+          ls -la deploy/
 
           # Copy index.html from resources and update the script reference
           if [ -f "composeApp/src/webMain/resources/index.html" ]; then
@@ -103,6 +111,20 @@ jobs:
             if [ -f "composeApp/src/webMain/resources/styles.css" ]; then
               cp composeApp/src/webMain/resources/styles.css deploy/
             fi
+
+            # Copy PWA manifest
+            if [ -f "composeApp/src/webMain/resources/manifest.json" ]; then
+              cp composeApp/src/webMain/resources/manifest.json deploy/
+              echo "✓ Copied manifest.json"
+            fi
+
+            # Copy any favicon or icon files
+            for icon in composeApp/src/webMain/resources/*.{ico,png}; do
+              if [ -f "$icon" ]; then
+                cp "$icon" deploy/
+                echo "✓ Copied $(basename $icon)"
+              fi
+            done
           else
             echo "ERROR: index.html not found in resources"
             exit 1
@@ -122,8 +144,18 @@ jobs:
           fi
 
           echo "✓ index.html found in deployment directory"
-          echo "Content of index.html:"
-          cat deploy/index.html
+
+          echo ""
+          echo "All JavaScript files in deploy directory:"
+          find deploy -name "*.js" -type f | sort
+
+          echo ""
+          echo "Verifying all required dependencies are present..."
+          if find deploy -name "kotlin-kotlin-stdlib*.js" -type f | grep -q .; then
+            echo "✓ kotlin-stdlib found"
+          else
+            echo "⚠ WARNING: kotlin-stdlib not found!"
+          fi
 
       - name: Deploy to Vercel
         env:
