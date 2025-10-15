@@ -91,6 +91,54 @@ data class ExtendedColors(
     val gradientEnd: Color = Color(0xFF0f3460)
 )
 
+// Light mode extended colors
+fun lightExtendedColors() = ExtendedColors(
+    // Primary Colors
+    iOSBlue = Color(0xFF007AFF),
+    androidGreen = Color(0xFF0D5D2E), // Much darker green for better readability in light mode
+    kmpPurple = Color(0xFF6A3FCC),
+
+    // Background Colors
+    darkBackground = Color(0xFFF5F5F5),
+    surface = Color(0xFFFFFFFF),
+    cardBackground = Color(0xFFFAFAFA),
+    elevatedSurface = Color(0xFFFFFFFF),
+
+    // Text Colors
+    textPrimary = Color(0xFF000000),
+    textSecondary = Color(0xFF5C5C5C),
+    textTertiary = Color(0xFF8E8E93),
+    textDisabled = Color(0x61000000),
+
+    // Status Colors (same)
+    success = Color(0xFF34C759),
+    warning = Color(0xFFFFCC00),
+    error = Color(0xFFFF3B30),
+    info = Color(0xFF007AFF),
+
+    // Social Media Colors (same)
+    gitHubPurple = Color(0xFF6e5494),
+    linkedInBlue = Color(0xFF0077B5),
+    twitterBlue = Color(0xFF1DA1F2),
+    instagramPink = Color(0xFFE1306C),
+    fitnessRed = Color(0xFFFF2D55),
+    toolsOrange = Color(0xFFFF9500),
+
+    // UI Element Colors
+    divider = Color(0x1F000000),
+    outline = Color(0x33000000),
+    ripple = Color(0x1F000000),
+    overlay = Color(0x52FFFFFF),
+
+    // Gradient Colors
+    gradientStart = Color(0xFFE3F2FD),
+    gradientMiddle = Color(0xFFBBDEFB),
+    gradientEnd = Color(0xFF90CAF9)
+)
+
+// Dark mode extended colors
+fun darkExtendedColors() = ExtendedColors()
+
 val LocalExtendedColors = staticCompositionLocalOf { ExtendedColors() }
 
 val ColorScheme.extended: ExtendedColors

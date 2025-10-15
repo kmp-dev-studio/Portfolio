@@ -27,7 +27,7 @@ fun PlatformBadge(
     Row(
         modifier = modifier
             .background(
-                color = color.copy(0.2f),
+                color = color.copy(0.1f),
                 shape = RoundedCornerShape(20.dp)
             )
             .border(
