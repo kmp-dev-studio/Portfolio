@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -29,10 +28,7 @@ import androidx.compose.ui.unit.sp
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Brands
 import compose.icons.fontawesomeicons.brands.Github
-import itsme.ronjie.portfolio.presentation.theme.cardBackground
 import itsme.ronjie.portfolio.presentation.theme.extended
-import itsme.ronjie.portfolio.presentation.theme.textPrimary
-import itsme.ronjie.portfolio.presentation.theme.textSecondary
 
 @Composable
 fun ProjectCard(
@@ -50,8 +46,7 @@ fun ProjectCard(
                 elevation = 8.dp,
                 shape = RoundedCornerShape(16.dp)
             ),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(cardBackground)
+        shape = RoundedCornerShape(16.dp)
     ) {
         Column(Modifier.padding(20.dp)) {
             Row(
@@ -63,13 +58,11 @@ fun ProjectCard(
                     Text(
                         text = title,
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = textPrimary
+                        fontWeight = FontWeight.Bold
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
                         text = description,
-                        color = textSecondary,
                         fontSize = 14.sp,
                         lineHeight = 20.sp
                     )

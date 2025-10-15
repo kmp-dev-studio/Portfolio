@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,9 +24,6 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import itsme.ronjie.portfolio.presentation.theme.cardBackground
-import itsme.ronjie.portfolio.presentation.theme.textPrimary
-import itsme.ronjie.portfolio.presentation.theme.textSecondary
 
 @Composable
 fun ContactItem(
@@ -58,8 +54,7 @@ fun ContactItem(
                     }
                 }
             ),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(cardBackground)
+        shape = RoundedCornerShape(16.dp)
     ) {
         Row(
             modifier = Modifier
@@ -87,12 +82,10 @@ fun ContactItem(
             Column {
                 Text(
                     text = title,
-                    color = textSecondary,
                     fontSize = 12.sp
                 )
                 Text(
                     text = value,
-                    color = textPrimary,
                     fontWeight = FontWeight.Medium
                 )
             }

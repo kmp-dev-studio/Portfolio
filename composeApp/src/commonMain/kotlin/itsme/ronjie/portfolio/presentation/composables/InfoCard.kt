@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,7 +21,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import itsme.ronjie.portfolio.presentation.theme.cardBackground
 import itsme.ronjie.portfolio.presentation.theme.extended
 
 @Composable
@@ -40,8 +38,7 @@ fun InfoCard(
                 elevation = 8.dp,
                 shape = RoundedCornerShape(16.dp)
             ),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(cardBackground)
+        shape = RoundedCornerShape(16.dp)
     ) {
         Column(Modifier.padding(20.dp)) {
             Row(
@@ -57,8 +54,7 @@ fun InfoCard(
                 Text(
                     text = title,
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = extendedColors.textPrimary
+                    fontWeight = FontWeight.Bold
                 )
             }
             Spacer(Modifier.height(12.dp))
