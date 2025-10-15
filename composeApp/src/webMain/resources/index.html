@@ -3,12 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta name="theme-color" content="#1a1a1a">
+
     <title>Ronjie Man-on — Mobile Developer</title>
-    <meta content="iOS & Android Mobile Developer specialized in Swift, SwiftUI, Kotlin, and Jetpack Compose,"
-          name="description">
+    <meta name="description" content="iOS & Android Mobile Developer specialized in Swift, SwiftUI, Kotlin, and Jetpack Compose. Building beautiful cross-platform mobile applications.">
+    <meta name="author" content="Ronjie Man-on">
+    <meta name="keywords" content="iOS Developer, Android Developer, Swift, SwiftUI, Kotlin, Jetpack Compose, Mobile Development, KMP">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://portfolio-ronjies-projects.vercel.app/">
+    <meta property="og:title" content="Ronjie Man-on — Mobile Developer">
+    <meta property="og:description" content="iOS & Android Mobile Developer specialized in Swift, SwiftUI, Kotlin, and Jetpack Compose. Building beautiful cross-platform mobile applications.">
+    <meta property="og:image" content="https://portfolio-ronjies-projects.vercel.app/og-image.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://portfolio-ronjies-projects.vercel.app/">
+    <meta property="twitter:title" content="Ronjie Man-on — Mobile Developer">
+    <meta property="twitter:description" content="iOS & Android Mobile Developer specialized in Swift, SwiftUI, Kotlin, and Jetpack Compose. Building beautiful cross-platform mobile applications.">
+    <meta property="twitter:image" content="https://portfolio-ronjies-projects.vercel.app/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
     <link href="styles.css" rel="stylesheet" type="text/css">
+
+    <style>
+        /* Loading spinner styles */
+        #app-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #app-loader.loaded {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loader-text {
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+    </style>
+
     <script src="composeApp.js" type="application/javascript"></script>
+
+    <script>
+        // Hide loader when app is ready
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const loader = document.getElementById('app-loader');
+                if (loader) {
+                    loader.classList.add('loaded');
+                    setTimeout(() => loader.remove(), 500);
+                }
+            }, 500);
+        });
+    </script>
 </head>
 <body>
+    <!-- Loading Spinner -->
+    <div id="app-loader">
+        <div class="spinner"></div>
+        <div class="loader-text">Loading Portfolio...</div>
+    </div>
 </body>
 </html>
