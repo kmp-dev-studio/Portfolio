@@ -101,7 +101,7 @@ fun SharedTransitionScope.HomeScreen(
                     maxLines = 1,
                     modifier = Modifier
                         .sharedElement(
-                            rememberSharedContentState(key = "name_$index"),
+                            sharedContentState = rememberSharedContentState(key = "name_$index"),
                             animatedVisibilityScope = animatedVisibilityScope,
                             boundsTransform = { _, _ ->
                                 tween(durationMillis = 500, easing = FastOutSlowInEasing)
@@ -124,7 +124,13 @@ fun SharedTransitionScope.HomeScreen(
                     maxLines = 1,
                     modifier = Modifier
                         .sharedElement(
-                            rememberSharedContentState(key = "title_${profile.NAME.split(" ").size + index}"),
+                            sharedContentState = rememberSharedContentState(
+                                key = "title_${
+                                    profile.NAME.split(
+                                        " "
+                                    ).size + index
+                                }"
+                            ),
                             animatedVisibilityScope = animatedVisibilityScope,
                             boundsTransform = { _, _ ->
                                 tween(durationMillis = 500, easing = FastOutSlowInEasing)
@@ -149,7 +155,7 @@ fun SharedTransitionScope.HomeScreen(
                     icon = platform.icon,
                     modifier = Modifier
                         .sharedElement(
-                            rememberSharedContentState(key = "platform_badge_${platform.id}"),
+                            sharedContentState = rememberSharedContentState(key = "platform_badge_${platform.id}"),
                             animatedVisibilityScope = animatedVisibilityScope,
                             boundsTransform = { _, _ ->
                                 tween(durationMillis = 500, easing = FastOutSlowInEasing)
@@ -181,16 +187,17 @@ fun SharedTransitionScope.HomeScreen(
             }
 
             FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.Start,
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 bioChunks.forEachIndexed { index, chunk ->
                     Text(
-                        text = chunk.joinToString(" ") + "",
+                        text = chunk.joinToString(" "),
                         lineHeight = 22.sp,
                         modifier = Modifier
                             .sharedElement(
-                                rememberSharedContentState(key = "bio_$index"),
+                                sharedContentState = rememberSharedContentState(key = "bio_$index"),
                                 animatedVisibilityScope = animatedVisibilityScope,
                                 boundsTransform = { _, _ ->
                                     tween(durationMillis = 500, easing = FastOutSlowInEasing)
