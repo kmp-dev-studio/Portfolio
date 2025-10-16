@@ -11,11 +11,13 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowWidthSizeClass
 import itsme.ronjie.portfolio.presentation.theme.LocalThemeManager
 
 @Composable
@@ -24,9 +26,12 @@ fun ThemeToggleButton(
 ) {
     val themeManager = LocalThemeManager.current
     val isDarkMode = themeManager.isDarkMode()
+    val adaptiveInfo = currentWindowAdaptiveInfo()
+    val isCompact =
+        adaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT
 
     val rotation by animateFloatAsState(
-        targetValue = if (!isDarkMode) 0f else 180f,
+        targetValue = if (isDarkMode) 0f else 180f,
         animationSpec = tween(durationMillis = 300),
         label = "theme_icon_rotation"
     )
@@ -36,7 +41,7 @@ fun ThemeToggleButton(
         modifier = modifier
     ) {
         Icon(
-            imageVector = if (isDarkMode) Icons.Default.LightMode else Icons.Default.DarkMode,
+            imageVector = if (isDarkMode) Icons.Filled.DarkMode else Icons.Filled.LightMode,
             contentDescription = if (isDarkMode) "Switch to Light Mode" else "Switch to Dark Mode",
             tint = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
@@ -45,8 +50,11 @@ fun ThemeToggleButton(
         )
     }
 
-    HorizontalDivider(
-        modifier = Modifier.width(40.dp),
-        thickness = 0.75.dp
-    )
+    if (!isCompact) {
+        HorizontalDivider(
+            modifier = Modifier.width(40.dp),
+            thickness = 0.75.dp,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
+        )
+    }
 }
