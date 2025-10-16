@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,7 +42,10 @@ import itsme.ronjie.portfolio.data.PortfolioData
 import itsme.ronjie.portfolio.presentation.composables.ExperienceItem
 import itsme.ronjie.portfolio.presentation.composables.InfoCard
 import itsme.ronjie.portfolio.presentation.composables.PlatformBadge
+import itsme.ronjie.portfolio.presentation.theme.androidGreen
 import itsme.ronjie.portfolio.presentation.theme.extended
+import itsme.ronjie.portfolio.presentation.theme.iOSBlue
+import kotlin.random.Random
 
 @Composable
 fun SharedTransitionScope.HomeScreen(
@@ -65,10 +69,13 @@ fun SharedTransitionScope.HomeScreen(
                 .clip(CircleShape)
                 .background(
                     Brush.linearGradient(
-                        colors = listOf(extendedColors.iOSBlue, extendedColors.androidGreen)
+                        colors = listOf(iOSBlue, androidGreen)
                     )
                 )
-                .border(4.dp, MaterialTheme.colorScheme.surface, CircleShape),
+                .border(
+                    width = 4.dp,
+                    color = MaterialTheme.colorScheme.surface, CircleShape
+                ),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -94,7 +101,7 @@ fun SharedTransitionScope.HomeScreen(
                     maxLines = 1,
                     modifier = Modifier
                         .sharedElement(
-                            rememberSharedContentState(key = "name_$index"),
+                            sharedContentState = rememberSharedContentState(key = "name_$index"),
                             animatedVisibilityScope = animatedVisibilityScope,
                             boundsTransform = { _, _ ->
                                 tween(durationMillis = 500, easing = FastOutSlowInEasing)
@@ -117,7 +124,13 @@ fun SharedTransitionScope.HomeScreen(
                     maxLines = 1,
                     modifier = Modifier
                         .sharedElement(
-                            rememberSharedContentState(key = "title_${profile.NAME.split(" ").size + index}"),
+                            sharedContentState = rememberSharedContentState(
+                                key = "title_${
+                                    profile.NAME.split(
+                                        " "
+                                    ).size + index
+                                }"
+                            ),
                             animatedVisibilityScope = animatedVisibilityScope,
                             boundsTransform = { _, _ ->
                                 tween(durationMillis = 500, easing = FastOutSlowInEasing)
@@ -142,7 +155,7 @@ fun SharedTransitionScope.HomeScreen(
                     icon = platform.icon,
                     modifier = Modifier
                         .sharedElement(
-                            rememberSharedContentState(key = "platform_badge_${platform.id}"),
+                            sharedContentState = rememberSharedContentState(key = "platform_badge_${platform.id}"),
                             animatedVisibilityScope = animatedVisibilityScope,
                             boundsTransform = { _, _ ->
                                 tween(durationMillis = 500, easing = FastOutSlowInEasing)
@@ -160,28 +173,31 @@ fun SharedTransitionScope.HomeScreen(
             icon = Icons.Filled.Person
         ) {
             val bioWords = profile.BIO.split(" ")
+            val bioChunks = remember(profile.BIO) {
+                val chunks = mutableListOf<List<String>>()
+                var currentIndex = 0
 
-            // Chunk bio words randomly by 1-3 words to match splash screen
-            val bioChunks = mutableListOf<List<String>>()
-            var currentIndex = 0
-            while (currentIndex < bioWords.size) {
-                val chunkSize =
-                    kotlin.random.Random.nextInt(1, 4).coerceAtMost(bioWords.size - currentIndex)
-                bioChunks.add(bioWords.subList(currentIndex, currentIndex + chunkSize))
-                currentIndex += chunkSize
+                while (currentIndex < bioWords.size) {
+                    val chunkSize = Random.nextInt(1, 4)
+                        .coerceAtMost(bioWords.size - currentIndex)
+                    chunks.add(bioWords.subList(currentIndex, currentIndex + chunkSize))
+                    currentIndex += chunkSize
+                }
+                chunks
             }
 
             FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.Start,
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 bioChunks.forEachIndexed { index, chunk ->
                     Text(
-                        text = chunk.joinToString(" ") + "",
+                        text = chunk.joinToString(" "),
                         lineHeight = 22.sp,
                         modifier = Modifier
                             .sharedElement(
-                                rememberSharedContentState(key = "bio_$index"),
+                                sharedContentState = rememberSharedContentState(key = "bio_$index"),
                                 animatedVisibilityScope = animatedVisibilityScope,
                                 boundsTransform = { _, _ ->
                                     tween(durationMillis = 500, easing = FastOutSlowInEasing)

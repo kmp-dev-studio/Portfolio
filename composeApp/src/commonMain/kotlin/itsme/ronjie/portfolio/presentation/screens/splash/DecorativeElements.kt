@@ -6,6 +6,7 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -29,10 +30,11 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import itsme.ronjie.portfolio.presentation.theme.extended
+import itsme.ronjie.portfolio.presentation.theme.androidGreen
+import itsme.ronjie.portfolio.presentation.theme.iOSBlue
+import itsme.ronjie.portfolio.presentation.theme.kmpPurple
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -40,12 +42,8 @@ internal fun DecorativeElementRenderer(
     element: DecorativeElement,
     index: Int,
     infiniteTransition: InfiniteTransition,
-    alphaValue: Float,
-    maxWidth: Dp,
-    maxHeight: Dp
+    alphaValue: Float
 ) {
-    val extendedColors = MaterialTheme.colorScheme.extended
-
     when (element) {
         is DecorativeElement.IconElement -> {
             val rotation = infiniteTransition.animateFloat(
@@ -92,13 +90,13 @@ internal fun DecorativeElementRenderer(
                     .size(40.dp)
                     .scale(scale)
                     .background(
-                        extendedColors.iOSBlue.copy(alpha = 0.3f),
-                        RoundedCornerShape(cornerRadius)
+                        color = iOSBlue.copy(alpha = 0.3f),
+                        shape = RoundedCornerShape(cornerRadius)
                     )
                     .border(
-                        2.dp,
-                        Color.White.copy(alpha = 0.4f),
-                        RoundedCornerShape(cornerRadius)
+                        width = 2.dp,
+                        color = Color.White.copy(alpha = 0.4f),
+                        shape = RoundedCornerShape(cornerRadius)
                     )
                     .alpha(alphaValue)
             )
@@ -114,19 +112,33 @@ internal fun DecorativeElementRenderer(
                 ),
                 label = "chip_pulse_$index"
             )
+            val color = when (element.text.lowercase()) {
+                "android" -> androidGreen
+                "ios" -> iOSBlue
+                "kmp" -> kmpPurple
+                else -> Color.White
+            }
             Surface(
-                shape = RoundedCornerShape(20.dp),
-                color = extendedColors.androidGreen.copy(alpha = 0.3f),
                 modifier = Modifier
                     .scale(pulse.value)
-                    .alpha(alphaValue)
+                    .alpha(alphaValue),
+                shape = RoundedCornerShape(20.dp),
+                color = color.copy(alpha = 0.1f),
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = color.copy(alpha = 0.75f)
+                )
             ) {
                 Text(
                     text = element.text,
+                    color = color,
+                    modifier = Modifier
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = 8.dp
+                        ),
                     fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.White,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    fontWeight = FontWeight.Medium
                 )
             }
         }
@@ -172,13 +184,8 @@ internal fun DecorativeElementRenderer(
         }
 
         is DecorativeElement.LinearProgressElement -> {
-            Box(
-                modifier = Modifier
-                    .alpha(alphaValue)
-            ) {
-                LinearWavyProgressIndicator(
-                    modifier = Modifier.size(100.dp, 4.dp)
-                )
+            Box(Modifier.alpha(alphaValue)) {
+                LinearWavyProgressIndicator(Modifier.size(100.dp, 4.dp))
             }
         }
     }
