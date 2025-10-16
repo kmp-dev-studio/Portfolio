@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,7 +20,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import itsme.ronjie.portfolio.presentation.theme.extended
+import itsme.ronjie.portfolio.presentation.theme.iOSBlue
 
 @Composable
 fun InfoCard(
@@ -29,8 +28,6 @@ fun InfoCard(
     icon: ImageVector,
     content: @Composable () -> Unit
 ) {
-    val extendedColors = MaterialTheme.colorScheme.extended
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -48,7 +45,7 @@ fun InfoCard(
                 Icon(
                     imageVector = icon,
                     contentDescription = title,
-                    tint = extendedColors.iOSBlue,
+                    tint = iOSBlue,
                     modifier = Modifier.size(24.dp)
                 )
                 Text(
