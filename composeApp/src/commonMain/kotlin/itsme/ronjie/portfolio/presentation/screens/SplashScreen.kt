@@ -55,7 +55,9 @@ fun SharedTransitionScope.SplashScreen(
     val platformPositions = remember { generatePlatformPositions() }
     val decorativeElements = remember { generateDecorativeElements() }
 
+    val greeting = "Hello there! I am "
     val fullName = profile.NAME
+    var typedGreeting by remember { mutableStateOf("") }
     var typedText by remember { mutableStateOf("") }
     var showCursor by remember { mutableStateOf(true) }
 
@@ -63,16 +65,21 @@ fun SharedTransitionScope.SplashScreen(
     val hazeState = remember { HazeState() }
 
     LaunchedEffect(Unit) {
-        val typingDuration = fullName.length * 100L
+        val totalTypingDuration = (greeting.length + fullName.length) * 100L
 
         launch {
             alphaAnimation.animateTo(
                 targetValue = 0.7f,
                 animationSpec = tween(
-                    durationMillis = typingDuration.toInt(),
+                    durationMillis = totalTypingDuration.toInt(),
                     easing = FastOutSlowInEasing
                 )
             )
+        }
+
+        greeting.forEachIndexed { index, char ->
+            typedGreeting = greeting.substring(0, index + 1)
+            delay(75)
         }
 
         fullName.forEachIndexed { index, char ->
@@ -82,9 +89,9 @@ fun SharedTransitionScope.SplashScreen(
 
         repeat(3) {
             showCursor = false
-            delay(300)
+            delay(250)
             showCursor = true
-            delay(300)
+            delay(250)
         }
 
         alphaAnimation.animateTo(
@@ -111,13 +118,24 @@ fun SharedTransitionScope.SplashScreen(
             contentAlignment = Alignment.Center
         ) {
             Column {
-                Text(
-                    text = "Hi there!",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                    maxLines = 1
-                )
+                Box {
+                    Text(
+                        text = "$fullName ",
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        fontSize = 40.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Transparent,
+                        maxLines = 1
+                    )
+
+                    Text(
+                        text = typedGreeting,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        maxLines = 1
+                    )
+                }
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
                 ) {
