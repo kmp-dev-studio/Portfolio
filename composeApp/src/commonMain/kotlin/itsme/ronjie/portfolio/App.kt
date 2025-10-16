@@ -11,17 +11,10 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Build
@@ -29,17 +22,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialExpressiveTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.NavigationRail
-import androidx.compose.material3.NavigationRailItem
-import androidx.compose.material3.NavigationRailItemDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -53,20 +36,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowWidthSizeClass
 import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.hazeEffect
-import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
-import dev.chrisbanes.haze.materials.HazeMaterials
-import itsme.ronjie.portfolio.presentation.composables.ThemeToggleButton
-import itsme.ronjie.portfolio.presentation.screens.ContactScreen
-import itsme.ronjie.portfolio.presentation.screens.HomeScreen
-import itsme.ronjie.portfolio.presentation.screens.ProjectsScreen
-import itsme.ronjie.portfolio.presentation.screens.SkillsScreen
+import itsme.ronjie.portfolio.presentation.navigation.AdaptiveNavigationBar
+import itsme.ronjie.portfolio.presentation.navigation.AdaptiveNavigationRail
+import itsme.ronjie.portfolio.presentation.navigation.NavigationItem
 import itsme.ronjie.portfolio.presentation.screens.SplashScreen
 import itsme.ronjie.portfolio.presentation.theme.LocalExtendedColors
 import itsme.ronjie.portfolio.presentation.theme.LocalThemeManager
@@ -77,12 +52,6 @@ import itsme.ronjie.portfolio.presentation.theme.darkExtendedColors
 import itsme.ronjie.portfolio.presentation.theme.lightExtendedColors
 import itsme.ronjie.portfolio.presentation.theme.rememberThemeManager
 import org.jetbrains.compose.ui.tooling.preview.Preview
-
-private data class NavigationItem(
-    val title: String,
-    val icon: ImageVector,
-    val index: Int
-)
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -145,7 +114,6 @@ fun App() {
             LocalThemeManager provides themeManager
         ) {
             var showSplash by remember { mutableStateOf(true) }
-            var selectedTab by remember { mutableStateOf(0) }
             val hazeState = remember { HazeState() }
 
             val items = listOf(
@@ -177,8 +145,6 @@ fun App() {
                         } else {
                             MainContent(
                                 animatedVisibilityScope = this@AnimatedContent,
-                                selectedTab = selectedTab,
-                                onTabSelected = { selectedTab = it },
                                 items = items,
                                 hazeState = hazeState
                             )
@@ -194,21 +160,17 @@ fun App() {
 @Composable
 private fun SharedTransitionScope.MainContent(
     animatedVisibilityScope: AnimatedVisibilityScope,
-    selectedTab: Int,
-    onTabSelected: (Int) -> Unit,
     items: List<NavigationItem>,
     hazeState: HazeState
 ) {
     val adaptiveInfo = currentWindowAdaptiveInfo()
     val windowSizeClass = adaptiveInfo.windowSizeClass
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(Modifier.fillMaxSize()) {
         when (windowSizeClass.windowWidthSizeClass) {
             WindowWidthSizeClass.MEDIUM, WindowWidthSizeClass.EXPANDED -> {
                 AdaptiveNavigationRail(
                     animatedVisibilityScope = animatedVisibilityScope,
-                    selectedTab = selectedTab,
-                    onTabSelected = onTabSelected,
                     items = items,
                     hazeState = hazeState
                 )
@@ -217,191 +179,9 @@ private fun SharedTransitionScope.MainContent(
             else -> {
                 AdaptiveNavigationBar(
                     animatedVisibilityScope = animatedVisibilityScope,
-                    selectedTab = selectedTab,
-                    onTabSelected = onTabSelected,
                     items = items,
                     hazeState = hazeState
                 )
-            }
-        }
-    }
-}
-
-@Composable
-private fun SharedTransitionScope.AdaptiveNavigationBar(
-    animatedVisibilityScope: AnimatedVisibilityScope,
-    selectedTab: Int,
-    onTabSelected: (Int) -> Unit,
-    items: List<NavigationItem>,
-    hazeState: HazeState
-) {
-    Scaffold(
-        containerColor = Color.Transparent,
-        bottomBar = {
-            NavigationBar(
-                containerColor = Color.Transparent,
-                modifier = Modifier
-                    .hazeEffect(
-                        state = hazeState,
-                        style = HazeMaterials.thick(
-                            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
-                        )
-                    )
-            ) {
-                items.forEach { item ->
-                    NavigationBarItem(
-                        selected = selectedTab == item.index,
-                        onClick = { onTabSelected(item.index) },
-                        icon = {
-                            Icon(
-                                imageVector = item.icon,
-                                contentDescription = item.title
-                            )
-                        },
-                        label = {
-                            Text(
-                                text = item.title,
-                                fontWeight = if (selectedTab == item.index) FontWeight.Bold else FontWeight.Normal
-                            )
-                        },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = MaterialTheme.colorScheme.onBackground,
-                            selectedTextColor = MaterialTheme.colorScheme.onBackground,
-                            unselectedIconColor = MaterialTheme.colorScheme.onBackground.copy(0.65f),
-                            unselectedTextColor = MaterialTheme.colorScheme.onBackground.copy(0.65f),
-                            indicatorColor = MaterialTheme.colorScheme.background.copy(0.75f)
-                        )
-                    )
-                }
-            }
-        }
-    ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .hazeSource(state = hazeState)
-                .hazeEffect(
-                    state = hazeState,
-                    style = HazeMaterials.thin(
-                        containerColor = Color.Red.copy(alpha = 0.9f)
-                    )
-                )
-        ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    ThemeToggleButton()
-                }
-
-                AnimatedContent(
-                    targetState = selectedTab,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    transitionSpec = {
-                        slideInHorizontally(
-                            initialOffsetX = { if (targetState > initialState) it else -it }
-                        ) + fadeIn() togetherWith
-                                slideOutHorizontally(
-                                    targetOffsetX = { if (targetState > initialState) -it else it }
-                                ) + fadeOut()
-                    }
-                ) { tab ->
-                    when (tab) {
-                        0 -> HomeScreen(animatedVisibilityScope)
-                        1 -> SkillsScreen()
-                        2 -> ProjectsScreen()
-                        3 -> ContactScreen()
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun SharedTransitionScope.AdaptiveNavigationRail(
-    animatedVisibilityScope: AnimatedVisibilityScope,
-    selectedTab: Int,
-    onTabSelected: (Int) -> Unit,
-    items: List<NavigationItem>,
-    hazeState: HazeState
-) {
-    Row(Modifier.fillMaxSize()) {
-        NavigationRail(
-            containerColor = Color.Transparent,
-            modifier = Modifier
-                .hazeEffect(
-                    state = hazeState,
-                    style = HazeMaterials.thick(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
-                    )
-                ),
-            header = { ThemeToggleButton() }
-        ) {
-            items.forEach { item ->
-                NavigationRailItem(
-                    selected = selectedTab == item.index,
-                    onClick = { onTabSelected(item.index) },
-                    icon = {
-                        Icon(
-                            imageVector = item.icon,
-                            contentDescription = item.title
-                        )
-                    },
-                    label = {
-                        Text(
-                            text = item.title,
-                            fontWeight = if (selectedTab == item.index) FontWeight.Bold else FontWeight.Normal
-                        )
-                    },
-                    colors = NavigationRailItemDefaults.colors(
-                        selectedIconColor = MaterialTheme.colorScheme.onBackground,
-                        selectedTextColor = MaterialTheme.colorScheme.onBackground,
-                        unselectedIconColor = MaterialTheme.colorScheme.onBackground.copy(0.65f),
-                        unselectedTextColor = MaterialTheme.colorScheme.onBackground.copy(0.65f),
-                        indicatorColor = MaterialTheme.colorScheme.background.copy(0.5f)
-                    )
-                )
-            }
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .hazeSource(state = hazeState)
-                .hazeEffect(
-                    state = hazeState,
-                    style = HazeMaterials.thin(
-                        containerColor = Color.Red.copy(alpha = 0.9f)
-                    )
-                )
-        ) {
-            AnimatedContent(
-                targetState = selectedTab,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                transitionSpec = {
-                    slideInHorizontally(
-                        initialOffsetX = { if (targetState > initialState) it else -it }
-                    ) + fadeIn() togetherWith
-                            slideOutHorizontally(
-                                targetOffsetX = { if (targetState > initialState) -it else it }
-                            ) + fadeOut()
-                }
-            ) { tab ->
-                when (tab) {
-                    0 -> HomeScreen(animatedVisibilityScope)
-                    1 -> SkillsScreen()
-                    2 -> ProjectsScreen()
-                    3 -> ContactScreen()
-                }
             }
         }
     }
