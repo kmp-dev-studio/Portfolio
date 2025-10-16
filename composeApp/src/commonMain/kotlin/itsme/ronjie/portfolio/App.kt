@@ -269,7 +269,7 @@ private fun SharedTransitionScope.AdaptiveNavigationBar(
                             selectedTextColor = MaterialTheme.colorScheme.onBackground,
                             unselectedIconColor = MaterialTheme.colorScheme.onBackground.copy(0.65f),
                             unselectedTextColor = MaterialTheme.colorScheme.onBackground.copy(0.65f),
-                            indicatorColor = MaterialTheme.colorScheme.surface.copy(0.75f)
+                            indicatorColor = MaterialTheme.colorScheme.background.copy(0.75f)
                         )
                     )
                 }
@@ -365,7 +365,7 @@ private fun SharedTransitionScope.AdaptiveNavigationRail(
                         selectedTextColor = MaterialTheme.colorScheme.onBackground,
                         unselectedIconColor = MaterialTheme.colorScheme.onBackground.copy(0.65f),
                         unselectedTextColor = MaterialTheme.colorScheme.onBackground.copy(0.65f),
-                        indicatorColor = MaterialTheme.colorScheme.surface.copy(0.5f)
+                        indicatorColor = MaterialTheme.colorScheme.background.copy(0.5f)
                     )
                 )
             }
