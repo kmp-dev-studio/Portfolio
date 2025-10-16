@@ -11,8 +11,6 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +20,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Build
@@ -45,15 +45,19 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowWidthSizeClass
@@ -76,6 +80,7 @@ import itsme.ronjie.portfolio.presentation.theme.darkBackground
 import itsme.ronjie.portfolio.presentation.theme.darkExtendedColors
 import itsme.ronjie.portfolio.presentation.theme.lightExtendedColors
 import itsme.ronjie.portfolio.presentation.theme.rememberThemeManager
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private data class NavigationItem(
@@ -145,7 +150,6 @@ fun App() {
             LocalThemeManager provides themeManager
         ) {
             var showSplash by remember { mutableStateOf(true) }
-            var selectedTab by remember { mutableStateOf(0) }
             val hazeState = remember { HazeState() }
 
             val items = listOf(
@@ -177,8 +181,6 @@ fun App() {
                         } else {
                             MainContent(
                                 animatedVisibilityScope = this@AnimatedContent,
-                                selectedTab = selectedTab,
-                                onTabSelected = { selectedTab = it },
                                 items = items,
                                 hazeState = hazeState
                             )
@@ -194,8 +196,6 @@ fun App() {
 @Composable
 private fun SharedTransitionScope.MainContent(
     animatedVisibilityScope: AnimatedVisibilityScope,
-    selectedTab: Int,
-    onTabSelected: (Int) -> Unit,
     items: List<NavigationItem>,
     hazeState: HazeState
 ) {
@@ -207,8 +207,6 @@ private fun SharedTransitionScope.MainContent(
             WindowWidthSizeClass.MEDIUM, WindowWidthSizeClass.EXPANDED -> {
                 AdaptiveNavigationRail(
                     animatedVisibilityScope = animatedVisibilityScope,
-                    selectedTab = selectedTab,
-                    onTabSelected = onTabSelected,
                     items = items,
                     hazeState = hazeState
                 )
@@ -217,8 +215,6 @@ private fun SharedTransitionScope.MainContent(
             else -> {
                 AdaptiveNavigationBar(
                     animatedVisibilityScope = animatedVisibilityScope,
-                    selectedTab = selectedTab,
-                    onTabSelected = onTabSelected,
                     items = items,
                     hazeState = hazeState
                 )
@@ -230,11 +226,15 @@ private fun SharedTransitionScope.MainContent(
 @Composable
 private fun SharedTransitionScope.AdaptiveNavigationBar(
     animatedVisibilityScope: AnimatedVisibilityScope,
-    selectedTab: Int,
-    onTabSelected: (Int) -> Unit,
     items: List<NavigationItem>,
     hazeState: HazeState
 ) {
+    val scrollState = rememberScrollState()
+    var selectedSection by remember { mutableStateOf(0) }
+    val coroutineScope = rememberCoroutineScope()
+
+    val sectionPositions = remember { mutableMapOf<Int, Float>() }
+
     Scaffold(
         containerColor = Color.Transparent,
         bottomBar = {
@@ -250,8 +250,16 @@ private fun SharedTransitionScope.AdaptiveNavigationBar(
             ) {
                 items.forEach { item ->
                     NavigationBarItem(
-                        selected = selectedTab == item.index,
-                        onClick = { onTabSelected(item.index) },
+                        selected = selectedSection == item.index,
+                        onClick = {
+                            coroutineScope.launch {
+                                val targetPosition = sectionPositions[item.index] ?: 0f
+                                scrollState.animateScrollTo(
+                                    value = targetPosition.toInt(),
+                                    animationSpec = tween(durationMillis = 500)
+                                )
+                            }
+                        },
                         icon = {
                             Icon(
                                 imageVector = item.icon,
@@ -261,7 +269,7 @@ private fun SharedTransitionScope.AdaptiveNavigationBar(
                         label = {
                             Text(
                                 text = item.title,
-                                fontWeight = if (selectedTab == item.index) FontWeight.Bold else FontWeight.Normal
+                                fontWeight = if (selectedSection == item.index) FontWeight.Bold else FontWeight.Normal
                             )
                         },
                         colors = NavigationBarItemDefaults.colors(
@@ -280,46 +288,56 @@ private fun SharedTransitionScope.AdaptiveNavigationBar(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .hazeSource(state = hazeState)
-                .hazeEffect(
-                    state = hazeState,
-                    style = HazeMaterials.thin(
-                        containerColor = Color.Red.copy(alpha = 0.9f)
-                    )
-                )
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .hazeSource(state = hazeState)
+            ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.End
-                ) {
-                    ThemeToggleButton()
-                }
+                ) { ThemeToggleButton() }
 
-                AnimatedContent(
-                    targetState = selectedTab,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    transitionSpec = {
-                        slideInHorizontally(
-                            initialOffsetX = { if (targetState > initialState) it else -it }
-                        ) + fadeIn() togetherWith
-                                slideOutHorizontally(
-                                    targetOffsetX = { if (targetState > initialState) -it else it }
-                                ) + fadeOut()
+                Box(
+                    modifier = Modifier.onGloballyPositioned { coordinates ->
+                        sectionPositions[0] = coordinates.positionInParent().y
                     }
-                ) { tab ->
-                    when (tab) {
-                        0 -> HomeScreen(animatedVisibilityScope)
-                        1 -> SkillsScreen()
-                        2 -> ProjectsScreen()
-                        3 -> ContactScreen()
+                ) { HomeScreen(animatedVisibilityScope) }
+
+                Box(
+                    modifier = Modifier.onGloballyPositioned { coordinates ->
+                        sectionPositions[1] = coordinates.positionInParent().y
                     }
-                }
+                ) { SkillsScreen() }
+
+                Box(
+                    modifier = Modifier.onGloballyPositioned { coordinates ->
+                        sectionPositions[2] = coordinates.positionInParent().y
+                    }
+                ) { ProjectsScreen() }
+
+                Box(
+                    modifier = Modifier.onGloballyPositioned { coordinates ->
+                        sectionPositions[3] = coordinates.positionInParent().y
+                    }
+                ) { ContactScreen() }
             }
+        }
+    }
+
+    LaunchedEffect(scrollState.value) {
+        val currentScroll = scrollState.value.toFloat()
+
+        selectedSection = when {
+            sectionPositions.isEmpty() -> 0
+            currentScroll < (sectionPositions[1] ?: Float.MAX_VALUE) -> 0
+            currentScroll < (sectionPositions[2] ?: Float.MAX_VALUE) -> 1
+            currentScroll < (sectionPositions[3] ?: Float.MAX_VALUE) -> 2
+            else -> 3
         }
     }
 }
@@ -327,11 +345,14 @@ private fun SharedTransitionScope.AdaptiveNavigationBar(
 @Composable
 private fun SharedTransitionScope.AdaptiveNavigationRail(
     animatedVisibilityScope: AnimatedVisibilityScope,
-    selectedTab: Int,
-    onTabSelected: (Int) -> Unit,
     items: List<NavigationItem>,
     hazeState: HazeState
 ) {
+    val scrollState = rememberScrollState()
+    var selectedSection by remember { mutableStateOf(0) }
+    val coroutineScope = rememberCoroutineScope()
+    val sectionPositions = remember { mutableMapOf<Int, Float>() }
+
     Row(Modifier.fillMaxSize()) {
         NavigationRail(
             containerColor = Color.Transparent,
@@ -346,8 +367,16 @@ private fun SharedTransitionScope.AdaptiveNavigationRail(
         ) {
             items.forEach { item ->
                 NavigationRailItem(
-                    selected = selectedTab == item.index,
-                    onClick = { onTabSelected(item.index) },
+                    selected = selectedSection == item.index,
+                    onClick = {
+                        coroutineScope.launch {
+                            val targetPosition = sectionPositions[item.index] ?: 0f
+                            scrollState.animateScrollTo(
+                                value = targetPosition.toInt(),
+                                animationSpec = tween(durationMillis = 500)
+                            )
+                        }
+                    },
                     icon = {
                         Icon(
                             imageVector = item.icon,
@@ -357,7 +386,7 @@ private fun SharedTransitionScope.AdaptiveNavigationRail(
                     label = {
                         Text(
                             text = item.title,
-                            fontWeight = if (selectedTab == item.index) FontWeight.Bold else FontWeight.Normal
+                            fontWeight = if (selectedSection == item.index) FontWeight.Bold else FontWeight.Normal
                         )
                     },
                     colors = NavigationRailItemDefaults.colors(
@@ -371,38 +400,48 @@ private fun SharedTransitionScope.AdaptiveNavigationRail(
             }
         }
 
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(scrollState)
                 .hazeSource(state = hazeState)
-                .hazeEffect(
-                    state = hazeState,
-                    style = HazeMaterials.thin(
-                        containerColor = Color.Red.copy(alpha = 0.9f)
-                    )
-                )
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            AnimatedContent(
-                targetState = selectedTab,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                transitionSpec = {
-                    slideInHorizontally(
-                        initialOffsetX = { if (targetState > initialState) it else -it }
-                    ) + fadeIn() togetherWith
-                            slideOutHorizontally(
-                                targetOffsetX = { if (targetState > initialState) -it else it }
-                            ) + fadeOut()
+            Box(
+                modifier = Modifier.onGloballyPositioned { coordinates ->
+                    sectionPositions[0] = coordinates.positionInParent().y
                 }
-            ) { tab ->
-                when (tab) {
-                    0 -> HomeScreen(animatedVisibilityScope)
-                    1 -> SkillsScreen()
-                    2 -> ProjectsScreen()
-                    3 -> ContactScreen()
+            ) { HomeScreen(animatedVisibilityScope) }
+
+            Box(
+                modifier = Modifier.onGloballyPositioned { coordinates ->
+                    sectionPositions[1] = coordinates.positionInParent().y
                 }
-            }
+            ) { SkillsScreen() }
+
+            Box(
+                modifier = Modifier.onGloballyPositioned { coordinates ->
+                    sectionPositions[2] = coordinates.positionInParent().y
+                }
+            ) { ProjectsScreen() }
+
+            Box(
+                modifier = Modifier.onGloballyPositioned { coordinates ->
+                    sectionPositions[3] = coordinates.positionInParent().y
+                }
+            ) { ContactScreen() }
+        }
+    }
+
+    LaunchedEffect(scrollState.value) {
+        val currentScroll = scrollState.value.toFloat()
+
+        selectedSection = when {
+            sectionPositions.isEmpty() -> 0
+            currentScroll < (sectionPositions[1] ?: Float.MAX_VALUE) -> 0
+            currentScroll < (sectionPositions[2] ?: Float.MAX_VALUE) -> 1
+            currentScroll < (sectionPositions[3] ?: Float.MAX_VALUE) -> 2
+            else -> 3
         }
     }
 }
