@@ -7,6 +7,7 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -49,6 +50,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -69,11 +71,9 @@ import itsme.ronjie.portfolio.presentation.screens.SplashScreen
 import itsme.ronjie.portfolio.presentation.theme.LocalExtendedColors
 import itsme.ronjie.portfolio.presentation.theme.LocalThemeManager
 import itsme.ronjie.portfolio.presentation.theme.ThemeMode
-import itsme.ronjie.portfolio.presentation.theme.androidGreen
 import itsme.ronjie.portfolio.presentation.theme.cardBackground
 import itsme.ronjie.portfolio.presentation.theme.darkBackground
 import itsme.ronjie.portfolio.presentation.theme.darkExtendedColors
-import itsme.ronjie.portfolio.presentation.theme.iOSBlue
 import itsme.ronjie.portfolio.presentation.theme.lightExtendedColors
 import itsme.ronjie.portfolio.presentation.theme.rememberThemeManager
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -94,30 +94,46 @@ private data class NavigationItem(
 fun App() {
     val themeManager = rememberThemeManager(ThemeMode.DARK)
     val isDarkMode = themeManager.currentTheme.value == ThemeMode.DARK
-
     val extendedColors = if (isDarkMode) darkExtendedColors() else lightExtendedColors()
+    val animationSpec = tween<Color>(durationMillis = 500)
 
-    val gradientBackground = Brush.verticalGradient(
-        colors = listOf(
-            extendedColors.gradientStart,
-            extendedColors.gradientMiddle,
-            extendedColors.gradientEnd
-        )
+    val gradientStart by animateColorAsState(
+        targetValue = extendedColors.gradientStart,
+        animationSpec = animationSpec
+    )
+    val gradientMiddle by animateColorAsState(
+        targetValue = extendedColors.gradientMiddle,
+        animationSpec = animationSpec
+    )
+    val gradientEnd by animateColorAsState(
+        targetValue = extendedColors.gradientEnd,
+        animationSpec = animationSpec
+    )
+
+    val gradientBackground = Brush.linearGradient(
+        colors = listOf(gradientStart, gradientMiddle, gradientEnd),
+        start = Offset(0f, 0f),
+        end = Offset(1f, 1f)
+    )
+
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isDarkMode) darkBackground else Color(0xFFF5F5F5),
+        animationSpec = animationSpec
+    )
+    val surfaceColor by animateColorAsState(
+        targetValue = if (isDarkMode) cardBackground else Color.White,
+        animationSpec = animationSpec
     )
 
     val colorScheme = if (isDarkMode) {
         darkColorScheme(
-            primary = iOSBlue,
-            secondary = androidGreen,
-            background = darkBackground,
-            surface = cardBackground
+            background = backgroundColor,
+            surface = surfaceColor
         )
     } else {
         lightColorScheme(
-            primary = iOSBlue,
-            secondary = androidGreen,
-            background = Color(0xFFF5F5F5),
-            surface = Color.White
+            background = backgroundColor,
+            surface = surfaceColor
         )
     }
 
@@ -186,10 +202,7 @@ private fun SharedTransitionScope.MainContent(
     val adaptiveInfo = currentWindowAdaptiveInfo()
     val windowSizeClass = adaptiveInfo.windowSizeClass
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
         when (windowSizeClass.windowWidthSizeClass) {
             WindowWidthSizeClass.MEDIUM, WindowWidthSizeClass.EXPANDED -> {
                 AdaptiveNavigationRail(
@@ -256,7 +269,7 @@ private fun SharedTransitionScope.AdaptiveNavigationBar(
                             selectedTextColor = MaterialTheme.colorScheme.onBackground,
                             unselectedIconColor = MaterialTheme.colorScheme.onBackground.copy(0.65f),
                             unselectedTextColor = MaterialTheme.colorScheme.onBackground.copy(0.65f),
-                            indicatorColor = MaterialTheme.colorScheme.surface.copy(0.75f)
+                            indicatorColor = MaterialTheme.colorScheme.background.copy(0.75f)
                         )
                     )
                 }
@@ -319,7 +332,7 @@ private fun SharedTransitionScope.AdaptiveNavigationRail(
     items: List<NavigationItem>,
     hazeState: HazeState
 ) {
-    Row(modifier = Modifier.fillMaxSize()) {
+    Row(Modifier.fillMaxSize()) {
         NavigationRail(
             containerColor = Color.Transparent,
             modifier = Modifier
@@ -329,9 +342,7 @@ private fun SharedTransitionScope.AdaptiveNavigationRail(
                         containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
                     )
                 ),
-            header = {
-                ThemeToggleButton()
-            }
+            header = { ThemeToggleButton() }
         ) {
             items.forEach { item ->
                 NavigationRailItem(
@@ -354,7 +365,7 @@ private fun SharedTransitionScope.AdaptiveNavigationRail(
                         selectedTextColor = MaterialTheme.colorScheme.onBackground,
                         unselectedIconColor = MaterialTheme.colorScheme.onBackground.copy(0.65f),
                         unselectedTextColor = MaterialTheme.colorScheme.onBackground.copy(0.65f),
-                        indicatorColor = MaterialTheme.colorScheme.surface.copy(0.5f)
+                        indicatorColor = MaterialTheme.colorScheme.background.copy(0.5f)
                     )
                 )
             }

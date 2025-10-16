@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,7 +56,9 @@ fun SharedTransitionScope.SplashScreen(
     val platformPositions = remember { generatePlatformPositions() }
     val decorativeElements = remember { generateDecorativeElements() }
 
+    val title = "PORTFOLIO"
     val fullName = profile.NAME
+    var typedGreeting by remember { mutableStateOf("") }
     var typedText by remember { mutableStateOf("") }
     var showCursor by remember { mutableStateOf(true) }
 
@@ -63,16 +66,21 @@ fun SharedTransitionScope.SplashScreen(
     val hazeState = remember { HazeState() }
 
     LaunchedEffect(Unit) {
-        val typingDuration = fullName.length * 100L
+        val totalTypingDuration = (title.length + fullName.length) * 100L
 
         launch {
             alphaAnimation.animateTo(
                 targetValue = 0.7f,
                 animationSpec = tween(
-                    durationMillis = typingDuration.toInt(),
+                    durationMillis = totalTypingDuration.toInt(),
                     easing = FastOutSlowInEasing
                 )
             )
+        }
+
+        title.forEachIndexed { index, char ->
+            typedGreeting = title.substring(0, index + 1)
+            delay(75)
         }
 
         fullName.forEachIndexed { index, char ->
@@ -82,9 +90,9 @@ fun SharedTransitionScope.SplashScreen(
 
         repeat(3) {
             showCursor = false
-            delay(300)
+            delay(250)
             showCursor = true
-            delay(300)
+            delay(250)
         }
 
         alphaAnimation.animateTo(
@@ -110,12 +118,18 @@ fun SharedTransitionScope.SplashScreen(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Column {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
                 Text(
-                    text = "Hi there!",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
+                    text = typedGreeting,
                     color = Color.White,
+                    fontSize = 36.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.Monospace,
+                    letterSpacing = 2.sp,
                     maxLines = 1
                 )
                 Row(
@@ -131,11 +145,11 @@ fun SharedTransitionScope.SplashScreen(
                             text = displayText + if (index == nameWords.lastIndex && visibleChars == word.length && showCursor) "|" else " ",
                             fontSize = 32.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White,
+                            color = Color.White.copy(0.75f),
                             maxLines = 1,
                             modifier = Modifier
                                 .sharedElement(
-                                    rememberSharedContentState(key = "name_$index"),
+                                    sharedContentState = rememberSharedContentState(key = "name_$index"),
                                     animatedVisibilityScope = animatedVisibilityScope,
                                     boundsTransform = { _, _ ->
                                         tween(durationMillis = 500, easing = FastOutSlowInEasing)
@@ -187,7 +201,7 @@ fun SharedTransitionScope.SplashScreen(
                     .hazeSource(state = hazeState)
                     .alpha(alphaAnimation.value)
                     .sharedElement(
-                        rememberSharedContentState(key = "platform_badge_$platformId"),
+                        sharedContentState = rememberSharedContentState(key = "platform_badge_$platformId"),
                         animatedVisibilityScope = animatedVisibilityScope,
                         boundsTransform = { _, _ ->
                             tween(durationMillis = 500, easing = FastOutSlowInEasing)
@@ -212,9 +226,7 @@ fun SharedTransitionScope.SplashScreen(
                     element = element,
                     index = index,
                     infiniteTransition = infiniteTransition,
-                    alphaValue = alphaAnimation.value,
-                    maxWidth = maxWidth,
-                    maxHeight = maxHeight
+                    alphaValue = alphaAnimation.value
                 )
             }
         }

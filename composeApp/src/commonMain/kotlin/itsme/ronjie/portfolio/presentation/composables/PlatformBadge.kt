@@ -31,8 +31,8 @@ fun PlatformBadge(
                 shape = RoundedCornerShape(20.dp)
             )
             .border(
-                width = 1.dp,
-                color = color.copy(0.5f),
+                width = 0.75.dp,
+                color = color,
                 shape = RoundedCornerShape(20.dp)
             )
             .padding(
@@ -45,8 +45,8 @@ fun PlatformBadge(
         Icon(
             imageVector = icon,
             contentDescription = text,
-            tint = color,
-            modifier = Modifier.size(18.dp)
+            modifier = Modifier.size(18.dp),
+            tint = color
         )
         Text(
             text = text,
