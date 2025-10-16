@@ -3,9 +3,11 @@ package itsme.ronjie.portfolio.presentation.composables
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -24,7 +26,7 @@ fun ThemeToggleButton(
     val isDarkMode = themeManager.isDarkMode()
 
     val rotation by animateFloatAsState(
-        targetValue = if (isDarkMode) 0f else 180f,
+        targetValue = if (!isDarkMode) 0f else 180f,
         animationSpec = tween(durationMillis = 300),
         label = "theme_icon_rotation"
     )
@@ -42,4 +44,9 @@ fun ThemeToggleButton(
                 .rotate(rotation)
         )
     }
+
+    HorizontalDivider(
+        modifier = Modifier.width(40.dp),
+        thickness = 0.75.dp
+    )
 }
