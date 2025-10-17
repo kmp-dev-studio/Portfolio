@@ -2,6 +2,7 @@ package itsme.ronjie.portfolio.presentation.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -118,18 +119,25 @@ fun ContactScreen() {
 
         Spacer(Modifier.height(24.dp))
 
-        Button(
-            onClick = {
-                val subject = "Contact from $fullName"
-                val body = "Name: $fullName\nEmail: $email\n\nMessage:\n$message"
-                val encodedSubject = subject.encodeURLParameter()
-                val encodedBody = body.encodeURLParameter()
-                val email = PortfolioData.contacts.first { it.type == ContactType.EMAIL }.value
-                val mailtoUrl = "mailto:${email}?subject=$encodedSubject&body=$encodedBody"
-                uriHandler.openUri(mailtoUrl)
-            },
-            enabled = fullName.isNotBlank() && email.isNotBlank() && message.isNotBlank()
-        ) { Text("Send Message") }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {
+                    val subject = "Contact from $fullName"
+                    val body = "Name: $fullName\nEmail: $email\n\nMessage:\n$message"
+                    val encodedSubject = subject.encodeURLParameter()
+                    val encodedBody = body.encodeURLParameter()
+                    val email = PortfolioData.contacts.first { it.type == ContactType.EMAIL }.value
+                    val mailtoUrl = "mailto:${email}?subject=$encodedSubject&body=$encodedBody"
+                    uriHandler.openUri(mailtoUrl)
+                },
+                enabled = fullName.isNotBlank() && email.isNotBlank() && message.isNotBlank(),
+                shape = MaterialTheme.shapes.small
+            ) { Text("Send Message") }
+        }
 
         Spacer(Modifier.height(32.dp))
 
