@@ -26,7 +26,6 @@ import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,7 +41,6 @@ import itsme.ronjie.portfolio.presentation.composables.PlatformBadge
 import itsme.ronjie.portfolio.presentation.theme.androidGreen
 import itsme.ronjie.portfolio.presentation.theme.extended
 import itsme.ronjie.portfolio.presentation.theme.iOSBlue
-import kotlin.random.Random
 
 @Composable
 fun SharedTransitionScope.HomeScreen(
@@ -169,27 +167,15 @@ fun SharedTransitionScope.HomeScreen(
             icon = Icons.Filled.Person
         ) {
             val bioWords = profile.BIO.split(" ")
-            val bioChunks = remember(profile.BIO) {
-                val chunks = mutableListOf<List<String>>()
-                var currentIndex = 0
-
-                while (currentIndex < bioWords.size) {
-                    val chunkSize = Random.nextInt(1, 4)
-                        .coerceAtMost(bioWords.size - currentIndex)
-                    chunks.add(bioWords.subList(currentIndex, currentIndex + chunkSize))
-                    currentIndex += chunkSize
-                }
-                chunks
-            }
 
             FlowRow(
-                horizontalArrangement = Arrangement.Start,
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                bioChunks.forEachIndexed { index, chunk ->
+                bioWords.forEachIndexed { index, word ->
                     Text(
-                        text = chunk.joinToString(" "),
+                        text = word,
                         lineHeight = 22.sp,
                         modifier = Modifier
                             .sharedElement(
