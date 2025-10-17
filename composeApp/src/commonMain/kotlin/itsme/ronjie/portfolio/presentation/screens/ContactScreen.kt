@@ -1,5 +1,6 @@
 package itsme.ronjie.portfolio.presentation.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -24,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -35,6 +38,7 @@ import itsme.ronjie.portfolio.domain.model.ContactType
 import itsme.ronjie.portfolio.presentation.composables.InfoCard
 import itsme.ronjie.portfolio.presentation.theme.extended
 import itsme.ronjie.portfolio.presentation.utils.encodeURLParameter
+import itsme.ronjie.portfolio.presentation.utils.isValidEmail
 
 @Composable
 fun ContactScreen() {
@@ -43,8 +47,9 @@ fun ContactScreen() {
     val uriHandler = LocalUriHandler.current
 
     var fullName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
+    var userEmail by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
+    var emailTouched by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -83,8 +88,11 @@ fun ContactScreen() {
         Spacer(Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it.trim() },
+            value = userEmail,
+            onValueChange = {
+                userEmail = it.trim()
+                if (!emailTouched) emailTouched = true
+            },
             label = { Text("Email") },
             leadingIcon = {
                 Icon(
@@ -98,7 +106,16 @@ fun ContactScreen() {
                 keyboardType = KeyboardType.Email,
                 imeAction = ImeAction.Next
             ),
-            shape = MaterialTheme.shapes.small
+            shape = MaterialTheme.shapes.small,
+            isError = emailTouched && userEmail.isNotBlank() && !userEmail.isValidEmail(),
+            supportingText = {
+                if (emailTouched && userEmail.isNotBlank() && !userEmail.isValidEmail()) {
+                    Text(
+                        text = "Please enter a valid email address",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
         )
 
         Spacer(Modifier.height(16.dp))
@@ -127,16 +144,33 @@ fun ContactScreen() {
             Button(
                 onClick = {
                     val subject = "Contact from $fullName"
-                    val body = "Name: $fullName\nEmail: $email\n\nMessage:\n$message"
+                    val body = "Name: $fullName\nEmail: $userEmail\n\nMessage:\n$message"
                     val encodedSubject = subject.encodeURLParameter()
                     val encodedBody = body.encodeURLParameter()
-                    val email = PortfolioData.contacts.first { it.type == ContactType.EMAIL }.value
-                    val mailtoUrl = "mailto:${email}?subject=$encodedSubject&body=$encodedBody"
+                    val contactEmail =
+                        PortfolioData.contacts.first { it.type == ContactType.EMAIL }.value
+                    val mailtoUrl =
+                        "mailto:${contactEmail}?subject=$encodedSubject&body=$encodedBody"
                     uriHandler.openUri(mailtoUrl)
                 },
-                enabled = fullName.isNotBlank() && email.isNotBlank() && message.isNotBlank(),
-                shape = MaterialTheme.shapes.small
-            ) { Text("Send Message") }
+                enabled = fullName.isNotBlank() && userEmail.isValidEmail() && message.isNotBlank(),
+                shape = MaterialTheme.shapes.small,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent
+                ),
+                border = BorderStroke(
+                    width = 0.75.dp,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            ) {
+                Text(
+                    text = "Send Message",
+                    color = MaterialTheme.colorScheme.onBackground.copy(0.75f),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
 
         Spacer(Modifier.height(32.dp))
