@@ -29,7 +29,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
       
       - name: Build web app
-        run: ./gradlew composeApp:jsBrowserProductionWebpack
+        run: ./gradlew composeApp:wasmJsBrowserDistribution
       
       - name: List build output
         run: |
@@ -51,30 +51,14 @@ jobs:
 
       - name: Prepare deployment
         run: |
-          # Look for the webpack output directory which contains all bundled JS files
-          BUILD_DIR=""
+          # Look for the wasmJs build output directory
+          BUILD_DIR="composeApp/build/dist/wasmJs/productionExecutable"
 
-          # Common webpack output locations for Kotlin/JS
-          if [ -d "composeApp/build/dist/js/productionExecutable" ]; then
-            BUILD_DIR="composeApp/build/dist/js/productionExecutable"
-          elif [ -d "composeApp/build/distributions" ]; then
-            BUILD_DIR="composeApp/build/distributions"
-          else
-            # Search for directory containing the main composeApp.js file
-            MAIN_JS_PATH=$(find composeApp/build -name "*composeApp.js" -not -name "*.map" -type f | head -1)
-            if [ -n "$MAIN_JS_PATH" ]; then
-              BUILD_DIR=$(dirname "$MAIN_JS_PATH")
-            fi
-          fi
-
-          if [ -z "$BUILD_DIR" ] || [ ! -d "$BUILD_DIR" ]; then
-            echo "ERROR: Could not find webpack build output directory"
-            echo "Searched locations:"
-            echo "  - composeApp/build/dist/js/productionExecutable"
-            echo "  - composeApp/build/distributions"
+          if [ ! -d "$BUILD_DIR" ]; then
+            echo "ERROR: WasmJS build output directory not found at $BUILD_DIR"
             echo ""
-            echo "All JS files in build directory:"
-            find composeApp/build -name "*.js" -type f 2>/dev/null || echo "No JS files found"
+            echo "Available directories in composeApp/build/dist:"
+            ls -la composeApp/build/dist 2>/dev/null || echo "dist directory not found"
             exit 1
           fi
 
@@ -85,63 +69,16 @@ jobs:
           # Create deployment directory
           mkdir -p deploy
 
-          # Copy ALL files from the build directory (all JS files and dependencies)
+          # WasmJS build output already includes index.html and all necessary files
+          # Just copy everything from the build directory
           echo "Copying all build output files..."
           cp -r "$BUILD_DIR"/* deploy/
 
+          # Copy vercel.json
+          cp vercel.json deploy/
+
           echo "Files copied to deploy directory:"
           ls -la deploy/
-
-          # Copy index.html from resources and update the script reference
-          if [ -f "composeApp/src/webMain/resources/index.html" ]; then
-            # Find the main JS file (usually Portfolio-composeApp.js or composeApp.js)
-            MAIN_JS=$(find deploy -name "*composeApp.js" -not -name "*.map" | head -1 | xargs basename)
-
-            if [ -z "$MAIN_JS" ]; then
-              echo "ERROR: Could not find main JS file"
-              exit 1
-            fi
-
-            echo "Found main JS file: $MAIN_JS"
-
-            # Copy index.html and update script reference
-            sed "s/composeApp\.js/$MAIN_JS/g" composeApp/src/webMain/resources/index.html > deploy/index.html
-
-            # Copy any CSS files if they exist
-            if [ -f "composeApp/src/webMain/resources/styles.css" ]; then
-              cp composeApp/src/webMain/resources/styles.css deploy/
-            fi
-
-            # Copy PWA manifest
-            if [ -f "composeApp/src/webMain/resources/manifest.json" ]; then
-              cp composeApp/src/webMain/resources/manifest.json deploy/
-              echo "✓ Copied manifest.json"
-            fi
-
-            # Copy any favicon or icon files
-            for icon in composeApp/src/webMain/resources/*.{ico,png}; do
-              if [ -f "$icon" ]; then
-                cp "$icon" deploy/
-                echo "✓ Copied $(basename $icon)"
-              fi
-            done
-
-            # Copy SEO files (sitemap, robots.txt)
-            if [ -f "composeApp/src/webMain/resources/sitemap.xml" ]; then
-              cp composeApp/src/webMain/resources/sitemap.xml deploy/
-              echo "✓ Copied sitemap.xml"
-            fi
-
-            if [ -f "composeApp/src/webMain/resources/robots.txt" ]; then
-              cp composeApp/src/webMain/resources/robots.txt deploy/
-              echo "✓ Copied robots.txt"
-            fi
-          else
-            echo "ERROR: index.html not found in resources"
-            exit 1
-          fi
-
-          cp vercel.json deploy/
 
           echo "Deployment directory contents:"
           ls -la deploy/
