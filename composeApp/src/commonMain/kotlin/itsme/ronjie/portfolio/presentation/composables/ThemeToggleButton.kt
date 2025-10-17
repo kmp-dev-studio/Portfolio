@@ -2,6 +2,8 @@ package itsme.ronjie.portfolio.presentation.composables
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -11,6 +13,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,6 +39,16 @@ fun ThemeToggleButton(
         label = "theme_icon_rotation"
     )
 
+    if (isCompact) {
+        VerticalDivider(
+            modifier = Modifier
+                .height(40.dp)
+                .padding(horizontal = 8.dp),
+            thickness = 0.75.dp,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
+        )
+    }
+
     IconButton(
         onClick = { themeManager.toggleTheme() },
         modifier = modifier
@@ -43,10 +56,10 @@ fun ThemeToggleButton(
         Icon(
             imageVector = if (isDarkMode) Icons.Filled.DarkMode else Icons.Filled.LightMode,
             contentDescription = if (isDarkMode) "Switch to Light Mode" else "Switch to Dark Mode",
-            tint = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
-                .size(24.dp)
-                .rotate(rotation)
+                .size(30.dp)
+                .rotate(rotation),
+            tint = MaterialTheme.colorScheme.onSurface
         )
     }
 
