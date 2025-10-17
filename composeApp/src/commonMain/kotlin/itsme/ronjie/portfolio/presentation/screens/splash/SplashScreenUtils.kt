@@ -48,21 +48,12 @@ internal fun generateTextFragments(): List<TextFragment> {
         )
     }
 
-    // Chunk bio words randomly by 1-3 words
-    val bioChunks = mutableListOf<List<String>>()
-    var currentIndex = 0
-    while (currentIndex < bioWords.size) {
-        val chunkSize = Random.nextInt(1, 4).coerceAtMost(bioWords.size - currentIndex)
-        bioChunks.add(bioWords.subList(currentIndex, currentIndex + chunkSize))
-        currentIndex += chunkSize
-    }
-
-    bioChunks.forEach { chunk ->
+    bioWords.forEach { word ->
         val (x, y) = generateRandomPosition()
         fragments.add(
             TextFragment(
                 id = "bio_${id++}",
-                text = chunk.joinToString(" "),
+                text = word,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Light,
                 x = x,
@@ -90,14 +81,14 @@ internal fun generateDecorativeElements(): List<DecorativeElement> {
             val (x, y) = generateRandomPosition()
             add(
                 DecorativeElement.IconElement(
-                    when (it) {
+                    icon = when (it) {
                         0 -> Icons.Default.Code
                         1 -> Icons.Default.Person
                         2 -> Icons.Default.Star
                         else -> Icons.Default.Work
                     },
-                    x,
-                    y
+                    x = x,
+                    y = y
                 )
             )
         }
@@ -105,13 +96,13 @@ internal fun generateDecorativeElements(): List<DecorativeElement> {
             val (x, y) = generateRandomPosition()
             add(
                 DecorativeElement.MorphingShapeElement(
-                    when (it % 3) {
+                    shape = when (it % 3) {
                         0 -> ShapeType.CIRCLE
                         1 -> ShapeType.SQUARE
                         else -> ShapeType.ROUNDED
                     },
-                    x,
-                    y
+                    x = x,
+                    y = y
                 )
             )
         }
