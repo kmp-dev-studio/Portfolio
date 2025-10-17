@@ -45,7 +45,7 @@ This portfolio application demonstrates the power of Kotlin Multiplatform by del
 
 ## Contact Information
 
-- **Email**: your.email@example.com
+- **Email**: manon.ronjiediafante@gmail.com
 - **LinkedIn**: [Your LinkedIn Profile](https://www.linkedin.com/in/ronjiemanon)
 - **GitHub**: [Your GitHub Profile](https://github.com/itsmeronjie)
 - **Portfolio Website**: [yourwebsite.com](https://https://portfolio-rdmanon.vercel.app/)
