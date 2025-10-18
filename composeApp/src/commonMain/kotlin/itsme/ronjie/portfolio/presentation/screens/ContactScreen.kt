@@ -19,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,7 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -82,6 +82,10 @@ fun ContactScreen() {
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Next
             ),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.extended.cardBackground,
+                unfocusedContainerColor = MaterialTheme.colorScheme.extended.cardBackground
+            ),
             shape = MaterialTheme.shapes.small
         )
 
@@ -105,6 +109,10 @@ fun ContactScreen() {
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email,
                 imeAction = ImeAction.Next
+            ),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.extended.cardBackground,
+                unfocusedContainerColor = MaterialTheme.colorScheme.extended.cardBackground
             ),
             shape = MaterialTheme.shapes.small,
             isError = emailTouched && userEmail.isNotBlank() && !userEmail.isValidEmail(),
@@ -131,6 +139,10 @@ fun ContactScreen() {
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text
             ),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.extended.cardBackground,
+                unfocusedContainerColor = MaterialTheme.colorScheme.extended.cardBackground
+            ),
             shape = MaterialTheme.shapes.small
         )
 
@@ -156,8 +168,10 @@ fun ContactScreen() {
                 enabled = fullName.isNotBlank() && userEmail.isValidEmail() && message.isNotBlank(),
                 shape = MaterialTheme.shapes.small,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    disabledContainerColor = Color.Transparent
+                    containerColor = MaterialTheme.colorScheme.extended.cardBackground,
+                    disabledContainerColor = MaterialTheme.colorScheme.extended.cardBackground.copy(
+                        alpha = 0.5f
+                    )
                 ),
                 border = BorderStroke(
                     width = 0.75.dp,

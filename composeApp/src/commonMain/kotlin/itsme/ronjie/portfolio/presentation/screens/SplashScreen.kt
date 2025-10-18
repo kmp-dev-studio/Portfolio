@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
@@ -41,12 +42,14 @@ import itsme.ronjie.portfolio.presentation.screens.splash.DecorativeElementRende
 import itsme.ronjie.portfolio.presentation.screens.splash.generateDecorativeElements
 import itsme.ronjie.portfolio.presentation.screens.splash.generatePlatformPositions
 import itsme.ronjie.portfolio.presentation.screens.splash.generateTextFragments
+import itsme.ronjie.portfolio.presentation.viewmodel.ProjectsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun SharedTransitionScope.SplashScreen(
     animatedVisibilityScope: AnimatedVisibilityScope,
+    projectsViewModel: ProjectsViewModel = viewModel { ProjectsViewModel() },
     onSplashComplete: () -> Unit
 ) {
     val profile = PortfolioData.Profile
@@ -66,6 +69,9 @@ fun SharedTransitionScope.SplashScreen(
     val hazeState = remember { HazeState() }
 
     LaunchedEffect(Unit) {
+        // Start fetching projects in the background
+        projectsViewModel.loadProjects(featuredLimit = 5)
+
         val totalTypingDuration = (title.length + fullName.length) * 100L
 
         launch {
