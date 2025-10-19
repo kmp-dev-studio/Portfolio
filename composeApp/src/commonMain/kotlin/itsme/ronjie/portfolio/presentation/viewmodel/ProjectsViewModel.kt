@@ -4,7 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import itsme.ronjie.portfolio.data.PortfolioData
 import itsme.ronjie.portfolio.data.repository.ProjectRepository
+import itsme.ronjie.portfolio.domain.model.Organization
 import itsme.ronjie.portfolio.domain.model.Project
+import itsme.ronjie.portfolio.presentation.theme.androidGreen
+import itsme.ronjie.portfolio.presentation.theme.iOSBlue
+import itsme.ronjie.portfolio.presentation.theme.kmpPurple
+import itsme.ronjie.portfolio.presentation.theme.toolsOrange
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,10 +30,26 @@ class ProjectsViewModel(
     val uiState: StateFlow<ProjectsUiState> = _uiState.asStateFlow()
 
     private val githubOrganizations = listOf(
-        "android-dev-studio",
-        "ios-dev-studio",
-        "backend-dev-studio",
-        "kmp-dev-studio"
+        Organization(
+            id = "android-dev-studio",
+            displayName = "Android",
+            color = androidGreen
+        ),
+        Organization(
+            id = "ios-dev-studio",
+            displayName = "iOS",
+            color = iOSBlue
+        ),
+        Organization(
+            id = "kmp-dev-studio",
+            displayName = "KMP",
+            color = kmpPurple
+        ),
+        Organization(
+            id = "backend-dev-studio",
+            displayName = "Backend",
+            color = toolsOrange
+        )
     )
 
     fun loadProjects(featuredLimit: Int = 5) {
@@ -36,7 +57,8 @@ class ProjectsViewModel(
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
-                val allProjects = repository.getProjectsFromMultipleOrgs(githubOrganizations)
+                val allProjects =
+                    repository.getProjectsFromMultipleOrgs(githubOrganizations.map { it.id })
                 val featuredProjects = allProjects.take(featuredLimit)
 
                 _uiState.value = ProjectsUiState(
@@ -56,7 +78,7 @@ class ProjectsViewModel(
         }
     }
 
-    fun getOrganizations(): List<String> = githubOrganizations
+    fun getOrganizations(): List<Organization> = githubOrganizations
 
     override fun onCleared() {
         super.onCleared()
